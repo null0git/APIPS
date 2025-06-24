@@ -922,7 +922,7 @@ async def simulate_network_traffic(ips_engine: IPSEngine):
                     size=512
                 )
                 ips_engine.process_packet(malicious_packet)
-            
+        try:  
             await asyncio.sleep(1)  # Simulate packet arrival rate
         except asyncio.CancelledError:
             logger.info("Traffic simulation cancelled.")
