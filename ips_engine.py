@@ -890,7 +890,7 @@ class SignatureEngine:
         except Exception as e:
             logger.error(f"Error loading signatures: {e}")
 
-async def PacketSimulator(ips_engine: IPSEngine):
+async def simulate_network_traffic(ips_engine: IPSEngine):
     """Simulate network traffic and process packets simulate_network_traffic"""
     try:
         while True:
