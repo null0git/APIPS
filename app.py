@@ -93,7 +93,7 @@ def init_ips_system():
     global ips_engine, packet_simulator
     try:
         ips_engine = IPSEngine()
-        packet_simulator = PacketSimulator()
+        #packet_simulator = PacketSimulator()
         print("✓ IPS Engine initialized successfully")
         return True
     except Exception as e:
