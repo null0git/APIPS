@@ -921,13 +921,12 @@ async def simulate_network_traffic(ips_engine: IPSEngine):
                     payload=b"This is a malicious payload with a known exploit pattern.",
                     size=512
                 )
-                ips_engine.process_packet(malicious_packet)
-        try:  
+                ips_engine.process_packet(malicious_packet)  
             await asyncio.sleep(1)  # Simulate packet arrival rate
-        except asyncio.CancelledError:
-            logger.info("Traffic simulation cancelled.")
-        except Exception as e:
-            logger.error(f"Traffic simulation failed: {e}")
+    except asyncio.CancelledError:
+        logger.info("Traffic simulation cancelled.")
+    except Exception as e:
+        logger.error(f"Traffic simulation failed: {e}")
 
 async def main():
     """Main function to start the IPS engine and traffic simulation"""
