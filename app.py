@@ -167,7 +167,7 @@ def dashboard():
         return render_template('error.html', error="IPS Engine not available")
     
     # Get system statistics
-    stats = ips_engine.get_statistics()
+    stats = ips_engine.get_target_statistics()
     recent_alerts = ips_engine.get_recent_alerts(15)
     
     # Calculate time-based metrics
@@ -371,7 +371,7 @@ def analytics():
         return render_template('error.html', error="IPS Engine not available")
     
     # Get comprehensive analytics data
-    stats = ips_engine.get_statistics()
+    stats = ips_engine.get_target_statistics()
     all_alerts = ips_engine.get_recent_alerts(1000)
     
     # Time-based analysis
@@ -692,7 +692,7 @@ def api_realtime_stats():
     if not ips_engine:
         return jsonify({'error': 'IPS Engine not available'}), 500
     
-    stats = ips_engine.get_statistics()
+    stats = ips_engine.get_target_statistics()
     
     # Get recent activity
     current_time = time.time()
@@ -954,7 +954,7 @@ def monitoring_targets():
         return render_template('error.html', error="IPS Engine not available")
     
     targets = ips_engine.get_monitoring_targets()
-    target_stats = ips_engine.get_target_statistics()
+    target_stats = ips_engine.get_target_target_statistics()
     
     log_user_activity("MONITORING_TARGETS_VIEW", "Accessed monitoring targets")
     return render_template('monitoring_targets.html', targets=targets, stats=target_stats)
