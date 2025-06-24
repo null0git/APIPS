@@ -922,12 +922,12 @@ async def simulate_network_traffic(ips_engine: IPSEngine):
                     size=512
                 )
                 ips_engine.process_packet(malicious_packet)
-        try:  
-            await asyncio.sleep(1)  # Simulate packet arrival rate
-        except asyncio.CancelledError:
-            logger.info("Traffic simulation cancelled.")
-        except Exception as e:
-            logger.error(f"Traffic simulation failed: {e}")
+            try:  
+                await asyncio.sleep(1)  # Simulate packet arrival rate
+            except asyncio.CancelledError:
+                logger.info("Traffic simulation cancelled.")
+            except Exception as e:
+                logger.error(f"Traffic simulation failed: {e}")
 
 async def main():
     """Main function to start the IPS engine and traffic simulation"""
