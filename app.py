@@ -22,7 +22,7 @@ import yaml
 from werkzeug.utils import secure_filename
 
 # Import our IPS engine
-from ips_engine import IPSEngine, PacketSimulator, ThreatSignature
+from ips_engine import *
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
