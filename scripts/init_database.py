@@ -137,6 +137,4 @@ def init_database():
         ('BF_001', 'Brute Force Attack', 'Detects brute force login attempts',
          r'(login|password|auth).*(fail|error|invalid)', 'high', 'brute_force', 'block', 1),
         ('MAL_001', 'Malware Signature', 'Detects known malware signatures',
-         r'(malware|virus|trojan|backdoor)', 'critical', 'malware', 'quarantine', 1),
-        ('DDOS_001', 'DDoS Attack Pattern', 'Detects distributed denial of service attacks',
-         r'(floo
+         r'(malware|virus|trojan|backdoor)', 'critical', 'malware', 'quarantine', 1)]
