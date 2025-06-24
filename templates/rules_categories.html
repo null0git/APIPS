@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Security Rules Categories - Advanced IPS System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-shield-lock me-2"></i>
+        Security Rules Categories
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                <i class="bi bi-plus-lg me-1"></i>
+                Create Category
+            </button>
+            <a href="{{ url_for('rules') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-list me-1"></i>
+                All Rules
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Overview -->
+<div class="row mb-4">
+    {% for category in categories %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="bi bi-{{ category.icon }} me-2"></i>
+                    {{ category.name }}
+                </h6>
+                <span class="badge bg-{{ category.severity_color }}">{{ category.rule_count }} rules</span>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ category.description }}</p>
+                
+                <!-- Rule Statistics -->
+                <div class="row text-center mb-3">
+                    <div class="col-4">
+                        <div class="text-success">
+                            <strong>{{ category.active_rules }}</strong><br>
+                            <small>Active</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-warning">
+                            <strong>{{ category.critical_rules }}</strong><br>
+                            <small>Critical</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-info">
+                            <strong>{{ category.triggered_24h }}</strong><br>
+                            <small>Triggered</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Rules -->
+                <h6 class="mb-2">Recent Rules:</h6>
+                <div class="list-group list-group-flush">
+                    {% for rule in rules_by_category[category.id][:3] %}
+                    <div class="list-group-item px-0 py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="fw-bold">{{ rule.name }}</small>
+                                <br><small class="text-muted">{{ rule.description[:50] }}...</small>
+                            </div>
+                            <span class="badge bg-{{ 'success' if rule.enabled else 'secondary' }}">
+                                {{ 'ON' if rule.enabled else 'OFF' }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="btn-group w-100">
+                    <a href="{{ url_for('category_rules', category_id=category.id) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-eye me-1"></i>View Rules
+                    </a>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="editCategory('{{ category.id }}')">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </button>
+                    <button class="btn btn-outline-success btn-sm" onclick="toggleCategory('{{ category.id }}', {{ 'true' if category.enabled else 'false' }})">
+                        <i class="bi bi-{{ 'pause' if category.enabled else 'play' }} me-1"></i>
+                        {{ 'Disable' if category.enabled else 'Enable' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Predefined Rule Categories -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="bi bi-download me-2"></i>
+            Install Predefined Rule Categories
+        </h6>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">Install industry-standard security rule categories with pre-configured rules.</p>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="bi bi-bug text-danger fs-1"></i>
+                        <h6 class="mt-2">OWASP Top 10</h6>
+                        <p class="small text-muted">Web application security rules based on OWASP Top 10 vulnerabilities</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="installRulepack('owasp-top10')">
+                            <i class="bi bi-download me-1"></i>Install (25 rules)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="bi bi-shield-exclamation text-warning fs-1"></i>
+                        <h6 class="mt-2">Network Attacks</h6>
+                        <p class="small text-muted">Common network-based attack patterns and intrusion attempts</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="installRulepack('network-attacks')">
+                            <i class="bi bi-download me-1"></i>Install (40 rules)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="bi bi-virus text-danger fs-1"></i>
+                        <h6 class="mt-2">Malware Detection</h6>
+                        <p class="small text-muted">Malware signatures and behavioral detection patterns</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="installRulepack('malware-detection')">
+                            <i class="bi bi-download me-1"></i>Install (60 rules)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="bi bi-database-exclamation text-info fs-1"></i>
+                        <h6 class="mt-2">Database Security</h6>
+                        <p class="small text-muted">SQL injection and database attack detection rules</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="installRulepack('database-security')">
+                            <i class="bi bi-download me-1"></i>Install (30 rules)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cloud-exclamation text-success fs-1"></i>
+                        <h6 class="mt-2">Cloud Security</h6>
+                        <p class="small text-muted">Cloud-specific security rules for AWS, Azure, and GCP</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="installRulepack('cloud-security')">
+                            <i class="bi bi-download me-1"></i>Install (35 rules)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="bi bi-robot text-secondary fs-1"></i>
+                        <h6 class="mt-2">Bot Detection</h6>
+                        <p class="small text-muted">Automated bot and scraper detection patterns</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="installRulepack('bot-detection')">
+                            <i class="bi bi-download me-1"></i>Install (20 rules)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Category Modal -->
+<div class="modal fade" id="createCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('create_category') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="category_name" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="category_name" name="category_name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category_description" class="form-label">Description</label>
+                        <textarea class="form-control" id="category_description" name="category_description" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category_icon" class="form-label">Icon</label>
+                                <select class="form-select" id="category_icon" name="category_icon">
+                                    <option value="shield-lock">Shield Lock</option>
+                                    <option value="bug">Bug</option>
+                                    <option value="virus">Virus</option>
+                                    <option value="database-exclamation">Database</option>
+                                    <option value="cloud-exclamation">Cloud</option>
+                                    <option value="robot">Robot</option>
+                                    <option value="network-widescreen">Network</option>
+                                    <option value="globe">Web</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category_color" class="form-label">Color</label>
+                                <select class="form-select" id="category_color" name="category_color">
+                                    <option value="primary">Blue</option>
+                                    <option value="success">Green</option>
+                                    <option value="warning">Yellow</option>
+                                    <option value="danger">Red</option>
+                                    <option value="info">Cyan</option>
+                                    <option value="secondary">Gray</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="category_enabled" name="category_enabled" checked>
+                        <label class="form-check-label" for="category_enabled">
+                            Enable category immediately
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editCategory(categoryId) {
+    // Edit category functionality
+    alert('Edit category functionality would be implemented here.');
+}
+
+function toggleCategory(categoryId, currentState) {
+    const action = currentState ? 'disable' : 'enable';
+    if (confirm(`Are you sure you want to ${action} this category?`)) {
+        fetch(`/api/toggle-category/${categoryId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to toggle category: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+        });
+    }
+}
+
+function installRulepack(rulepackId) {
+    if (confirm(`Install the ${rulepackId} rule pack? This will add predefined security rules to your system.`)) {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Installing...';
+        btn.disabled = true;
+        
+        fetch(`/api/install-rulepack/${rulepackId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Successfully installed ${data.rules_count} rules from ${rulepackId} rule pack.`);
+                location.reload();
+            } else {
+                alert('Installation failed: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Installation error: ' + error);
+        })
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Wizard - Advanced IPS System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .setup-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .setup-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+        
+        .setup-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .setup-body {
+            padding: 2rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .step.completed {
+            background: #10b981;
+            color: white;
+        }
+        
+        .step-content {
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            border: 2px solid #e5e7eb;
+            padding: 0.75rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+        
+        .btn {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="setup-card">
+            <div class="setup-header">
+                <h1 class="mb-0">
+                    <i class="bi bi-shield-check me-3"></i>
+                    Advanced IPS System
+                </h1>
+                <p class="mb-0 mt-2 opacity-90">Welcome! Let's set up your security system</p>
+            </div>
+            
+            <div class="setup-body">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" data-step="1">1</div>
+                    <div class="step" data-step="2">2</div>
+                    <div class="step" data-step="3">3</div>
+                    <div class="step" data-step="4">4</div>
+                    <div class="step" data-step="5">5</div>
+                </div>
+                
+                <form method="POST" id="setupForm">
+                    <!-- Step 1: Administrator Account -->
+                    <div class="step-content active" data-step="1">
+                        <h3 class="mb-4">
+                            <i class="bi bi-person-gear me-2"></i>
+                            Administrator Account
+                        </h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="admin_username">Username</label>
+                                    <input type="text" class="form-control" id="admin_username" name="admin_username" 
+                                           value="admin" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="admin_email">Email Address</label>
+                                    <input type="email" class="form-control" id="admin_email" name="admin_email" 
+                                           placeholder="admin@company.com" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="admin_password">Password</label>
+                                    <input type="password" class="form-control" id="admin_password" name="admin_password" 
+                                           minlength="8" required>
+                                    <small class="text-muted">Minimum 8 characters</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="admin_full_name">Full Name</label>
+                                    <input type="text" class="form-control" id="admin_full_name" name="admin_full_name" 
+                                           placeholder="System Administrator" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="organization">Organization</label>
+                            <input type="text" class="form-control" id="organization" name="organization" 
+                                   placeholder="Your Company Name">
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: System Configuration -->
+                    <div class="step-content" data-step="2">
+                        <h3 class="mb-4">
+                            <i class="bi bi-gear me-2"></i>
+                            System Configuration
+                        </h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="system_name">System Name</label>
+                                    <input type="text" class="form-control" id="system_name" name="system_name" 
+                                           value="Advanced IPS System" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="timezone">Timezone</label>
+                                    <select class="form-select" id="timezone" name="timezone" required>
+                                        <option value="UTC">UTC</option>
+                                        <option value="America/New_York">Eastern Time</option>
+                                        <option value="America/Chicago">Central Time</option>
+                                        <option value="America/Denver">Mountain Time</option>
+                                        <option value="America/Los_Angeles">Pacific Time</option>
+                                        <option value="Europe/London">London</option>
+                                        <option value="Europe/Paris">Paris</option>
+                                        <option value="Asia/Tokyo">Tokyo</option>
+                                        <option value="Asia/Shanghai">Shanghai</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Default Theme</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="theme" id="theme_light" value="light" checked>
+                                        <label class="form-check-label" for="theme_light">
+                                            <i class="bi bi-sun me-2"></i>Light Theme
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="theme" id="theme_dark" value="dark">
+                                        <label class="form-check-label" for="theme_dark">
+                                            <i class="bi bi-moon me-2"></i>Dark Theme
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Monitoring Features -->
+                    <div class="step-content" data-step="3">
+                        <h3 class="mb-4">
+                            <i class="bi bi-eye me-2"></i>
+                            Monitoring Features
+                        </h3>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <div class="feature-icon bg-primary bg-opacity-10">
+                                        <i class="bi bi-network-widescreen text-primary fs-4"></i>
+                                    </div>
+                                    <h5>Network Monitoring</h5>
+                                    <p class="text-muted mb-3">Monitor network traffic, ports, and connections</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="enable_network" name="enable_network" checked>
+                                        <label class="form-check-label" for="enable_network">
+                                            Enable Network Monitoring
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <div class="feature-icon bg-success bg-opacity-10">
+                                        <i class="bi bi-globe text-success fs-4"></i>
+                                    </div>
+                                    <h5>Website Monitoring</h5>
+                                    <p class="text-muted mb-3">Monitor websites, APIs, and web applications</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="enable_website" name="enable_website" checked>
+                                        <label class="form-check-label" for="enable_website">
+                                            Enable Website Monitoring
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <div class="feature-icon bg-info bg-opacity-10">
+                                        <i class="bi bi-server text-info fs-4"></i>
+                                    </div>
+                                    <h5>Client Monitoring</h5>
+                                    <p class="text-muted mb-3">Monitor servers, computers, and devices</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="enable_client" name="enable_client" checked>
+                                        <label class="form-check-label" for="enable_client">
+                                            Enable Client Monitoring
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Email Notifications -->
+                    <div class="step-content" data-step="4">
+                        <h3 class="mb-4">
+                            <i class="bi bi-envelope me-2"></i>
+                            Email Notifications
+                        </h3>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="enable_email_alerts" name="enable_email_alerts">
+                            <label class="form-check-label" for="enable_email_alerts">
+                                <strong>Enable Email Alerts</strong>
+                                <br><small class="text-muted">Receive email notifications for security events</small>
+                            </label>
+                        </div>
+                        
+                        <div id="email_config" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label class="form-label" for="smtp_server">SMTP Server</label>
+                                        <input type="text" class="form-control" id="smtp_server" name="smtp_server" 
+                                               placeholder="smtp.gmail.com">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label" for="smtp_port">Port</label>
+                                        <input type="number" class="form-control" id="smtp_port" name="smtp_port" 
+                                               value="587">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="smtp_username">SMTP Username</label>
+                                        <input type="email" class="form-control" id="smtp_username" name="smtp_username" 
+                                               placeholder="your-email@gmail.com">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="smtp_password">SMTP Password</label>
+                                        <input type="password" class="form-control" id="smtp_password" name="smtp_password" 
+                                               placeholder="App password or SMTP password">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 5: Review & Complete -->
+                    <div class="step-content" data-step="5">
+                        <h3 class="mb-4">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Review & Complete Setup
+                        </h3>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Please review your configuration before completing the setup.
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Administrator Account</h5>
+                                <ul class="list-unstyled">
+                                    <li><strong>Username:</strong> <span id="review_username"></span></li>
+                                    <li><strong>Email:</strong> <span id="review_email"></span></li>
+                                    <li><strong>Full Name:</strong> <span id="review_full_name"></span></li>
+                                </ul>
+                                
+                                <h5 class="mt-4">System Configuration</h5>
+                                <ul class="list-unstyled">
+                                    <li><strong>System Name:</strong> <span id="review_system_name"></span></li>
+                                    <li><strong>Timezone:</strong> <span id="review_timezone"></span></li>
+                                    <li><strong>Theme:</strong> <span id="review_theme"></span></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5>Monitoring Features</h5>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Network Monitoring: <span id="review_network"></span></li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Website Monitoring: <span id="review_website"></span></li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Client Monitoring: <span id="review_client"></span></li>
+                                </ul>
+                                
+                                <h5 class="mt-4">Email Notifications</h5>
+                                <ul class="list-unstyled">
+                                    <li><strong>Status:</strong> <span id="review_email_status"></span></li>
+                                    <li><strong>SMTP Server:</strong> <span id="review_smtp_server"></span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary" id="prevBtn" onclick="changeStep(-1)" style="display: none;">
+                            <i class="bi bi-arrow-left me-2"></i>Previous
+                        </button>
+                        <div></div>
+                        <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+                            Next<i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                        <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+                            <i class="bi bi-check-lg me-2"></i>Complete Setup
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+        
+        function showStep(step) {
+            // Hide all step contents
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show current step content
+            document.querySelector(`.step-content[data-step="${step}"]`).classList.add('active');
+            
+            // Update step indicators
+            document.querySelectorAll('.step').forEach((stepEl, index) => {
+                stepEl.classList.remove('active', 'completed');
+                if (index + 1 < step) {
+                    stepEl.classList.add('completed');
+                } else if (index + 1 === step) {
+                    stepEl.classList.add('active');
+                }
+            });
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').style.display = step > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').style.display = step < totalSteps ? 'block' : 'none';
+            document.getElementById('submitBtn').style.display = step === totalSteps ? 'block' : 'none';
+            
+            // Update review information on last step
+            if (step === totalSteps) {
+                updateReview();
+            }
+        }
+        
+        function changeStep(direction) {
+            if (direction === 1 && currentStep < totalSteps) {
+                if (validateCurrentStep()) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            } else if (direction === -1 && currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+        
+        function validateCurrentStep() {
+            const currentStepEl = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+            const requiredFields = currentStepEl.querySelectorAll('input[required], select[required]');
+            
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    field.focus();
+                    field.classList.add('is-invalid');
+                    return false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            }
+            
+            return true;
+        }
+        
+        function updateReview() {
+            document.getElementById('review_username').textContent = document.getElementById('admin_username').value;
+            document.getElementById('review_email').textContent = document.getElementById('admin_email').value;
+            document.getElementById('review_full_name').textContent = document.getElementById('admin_full_name').value;
+            document.getElementById('review_system_name').textContent = document.getElementById('system_name').value;
+            document.getElementById('review_timezone').textContent = document.getElementById('timezone').value;
+            document.getElementById('review_theme').textContent = document.querySelector('input[name="theme"]:checked').value;
+            document.getElementById('review_network').textContent = document.getElementById('enable_network').checked ? 'Enabled' : 'Disabled';
+            document.getElementById('review_website').textContent = document.getElementById('enable_website').checked ? 'Enabled' : 'Disabled';
+            document.getElementById('review_client').textContent = document.getElementById('enable_client').checked ? 'Enabled' : 'Disabled';
+            document.getElementById('review_email_status').textContent = document.getElementById('enable_email_alerts').checked ? 'Enabled' : 'Disabled';
+            document.getElementById('review_smtp_server').textContent = document.getElementById('smtp_server').value || 'Not configured';
+        }
+        
+        // Toggle email configuration visibility
+        document.getElementById('enable_email_alerts').addEventListener('change', function() {
+            document.getElementById('email_config').style.display = this.checked ? 'block' : 'none';
+        });
+        
+        // Form submission
+        document.getElementById('setupForm').addEventListener('submit', function(e) {
+            if (!validateCurrentStep()) {
+                e.preventDefault();
+            }
+        });
+        
+        // Initialize
+        showStep(1);
+    </script>
+</body>
+</html>

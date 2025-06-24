@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Client Setup - Documentation{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-server me-3"></i>
+                Client Monitoring Setup
+            </h1>
+            <p class="page-subtitle">Deploy monitoring agents on your servers for comprehensive network visibility</p>
+        </div>
+        <div>
+            <a href="{{ url_for('documentation') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Documentation
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Table of Contents -->
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card sticky-top" style="top: 100px;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-list me-2"></i>
+                    Table of Contents
+                </h6>
+            </div>
+            <div class="card-body">
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="#overview">Overview</a>
+                    <a class="nav-link" href="#requirements">Requirements</a>
+                    <a class="nav-link" href="#installation">Installation</a>
+                    <a class="nav-link" href="#configuration">Configuration</a>
+                    <a class="nav-link" href="#deployment">Deployment</a>
+                    <a class="nav-link" href="#monitoring">Monitoring</a>
+                    <a class="nav-link" href="#troubleshooting">Troubleshooting</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <!-- Overview -->
+        <section id="overview" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Overview
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p>The IPS Client Agent is a lightweight Python application that runs on your servers to provide real-time monitoring and security analysis. It communicates with the central IPS system via secure API calls.</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Key Features:</h6>
+                            <ul>
+                                <li>Real-time system monitoring</li>
+                                <li>Network traffic analysis</li>
+                                <li>Security event detection</li>
+                                <li>Automated threat response</li>
+                                <li>Performance metrics collection</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Supported Platforms:</h6>
+                            <ul>
+                                <li>Linux (Ubuntu, CentOS, RHEL)</li>
+                                <li>Windows Server</li>
+                                <li>macOS</li>
+                                <li>Docker containers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Requirements -->
+        <section id="requirements" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-cpu me-2"></i>
+                        System Requirements
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Minimum Requirements:</h6>
+                            <ul>
+                                <li><strong>CPU:</strong> 1 core, 1 GHz</li>
+                                <li><strong>RAM:</strong> 512 MB</li>
+                                <li><strong>Disk:</strong> 100 MB free space</li>
+                                <li><strong>Network:</strong> Internet connectivity</li>
+                                <li><strong>Python:</strong> 3.7 or higher</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Recommended Requirements:</h6>
+                            <ul>
+                                <li><strong>CPU:</strong> 2+ cores, 2+ GHz</li>
+                                <li><strong>RAM:</strong> 2 GB</li>
+                                <li><strong>Disk:</strong> 1 GB free space</li>
+                                <li><strong>Network:</strong> Stable connection</li>
+                                <li><strong>Python:</strong> 3.9 or higher</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> The client agent has minimal resource impact and is designed to run alongside your existing applications.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation -->
+        <section id="installation" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-download me-2"></i>
+                        Installation
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Step 1: Download the Client Agent</h6>
+                    <p>Download the IPS client agent from the system:</p>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+                            # Download the client agent<br>
+                            wget http://your-ips-server:5000/download/ips-client.py<br>
+                            # Or use curl<br>
+                            curl -O http://your-ips-server:5000/download/ips-client.py
+                        </code>
+                    </div>
+
+                    <h6>Step 2: Install Dependencies</h6>
+                    <p>Install required Python packages:</p>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+                            pip install requests psutil schedule cryptography
+                        </code>
+                    </div>
+
+                    <h6>Step 3: Make Executable</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+                            chmod +x ips-client.py
+                        </code>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Security Note:</strong> Always verify the integrity of downloaded files and use HTTPS in production environments.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration -->
+        <section id="configuration" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>
+                        Configuration
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Configuration File</h6>
+                    <p>Create a configuration file <code>ips-client.conf</code>:</p>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+[server]<br>
+host = your-ips-server.com<br>
+port = 5000<br>
+use_ssl = true<br>
+api_key = your-api-key-here<br>
+<br>
+[client]<br>
+hostname = web-server-01<br>
+environment = production<br>
+tags = web,frontend,critical<br>
+<br>
+[monitoring]<br>
+interval = 60<br>
+metrics_enabled = true<br>
+log_level = INFO<br>
+max_log_size = 100MB<br>
+<br>
+[security]<br>
+enable_network_monitoring = true<br>
+enable_file_monitoring = true<br>
+enable_process_monitoring = true<br>
+alert_threshold = medium
+                        </code>
+                    </div>
+
+                    <h6>Configuration Parameters</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Description</th>
+                                    <th>Default</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>host</code></td>
+                                    <td>IPS server hostname or IP</td>
+                                    <td>localhost</td>
+                                </tr>
+                                <tr>
+                                    <td><code>port</code></td>
+                                    <td>IPS server port</td>
+                                    <td>5000</td>
+                                </tr>
+                                <tr>
+                                    <td><code>api_key</code></td>
+                                    <td>Authentication API key</td>
+                                    <td>Required</td>
+                                </tr>
+                                <tr>
+                                    <td><code>interval</code></td>
+                                    <td>Monitoring interval (seconds)</td>
+                                    <td>60</td>
+                                </tr>
+                                <tr>
+                                    <td><code>log_level</code></td>
+                                    <td>Logging level</td>
+                                    <td>INFO</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deployment -->
+        <section id="deployment" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-play-circle me-2"></i>
+                        Deployment
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Manual Deployment</h6>
+                    <p>Start the client agent manually:</p>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+                            python3 ips-client.py --config ips-client.conf
+                        </code>
+                    </div>
+
+                    <h6>Service Deployment (Linux)</h6>
+                    <p>Create a systemd service for automatic startup:</p>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Create service file<br>
+sudo nano /etc/systemd/system/ips-client.service<br>
+<br>
+[Unit]<br>
+Description=IPS Client Agent<br>
+After=network.target<br>
+<br>
+[Service]<br>
+Type=simple<br>
+User=ips-client<br>
+WorkingDirectory=/opt/ips-client<br>
+ExecStart=/usr/bin/python3 /opt/ips-client/ips-client.py<br>
+Restart=always<br>
+RestartSec=10<br>
+<br>
+[Install]<br>
+WantedBy=multi-user.target<br>
+<br>
+# Enable and start service<br>
+sudo systemctl enable ips-client<br>
+sudo systemctl start ips-client
+                        </code>
+                    </div>
+
+                    <h6>Docker Deployment</h6>
+                    <p>Deploy using Docker:</p>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Create Dockerfile<br>
+FROM python:3.9-slim<br>
+COPY ips-client.py /app/<br>
+COPY ips-client.conf /app/<br>
+WORKDIR /app<br>
+RUN pip install requests psutil schedule cryptography<br>
+CMD ["python", "ips-client.py"]<br>
+<br>
+# Build and run<br>
+docker build -t ips-client .<br>
+docker run -d --name ips-client --restart unless-stopped ips-client
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

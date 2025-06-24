@@ -1,0 +1,537 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Advanced IPS System{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-speedometer2 me-3"></i>
+                Security Operations Dashboard
+            </h1>
+            <p class="page-subtitle">Real-time network security monitoring and threat detection</p>
+        </div>
+        <div class="d-flex gap-2">
+            <form method="POST" action="{{ url_for('system_control') }}" class="d-inline">
+                <input type="hidden" name="action" value="{% if data.system_active %}stop{% else %}start{% endif %}">
+                <button type="submit" class="btn btn-{% if data.system_active %}danger{% else %}success{% endif %}">
+                    <i class="bi bi-{% if data.system_active %}stop-circle{% else %}play-circle{% endif %} me-2"></i>
+                    {% if data.system_active %}Stop Monitoring{% else %}Start Monitoring{% endif %}
+                </button>
+            </form>
+            {% if current_user.role == 'admin' %}
+            <form method="POST" action="{{ url_for('system_control') }}" class="d-inline">
+                <input type="hidden" name="action" value="restart">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-arrow-clockwise me-2"></i>
+                    Restart System
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- System Status Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card {% if data.system_active %}border-success{% else %}border-danger{% endif %}">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <span id="system-status" class="status-indicator {% if data.system_active %}status-active{% else %}status-inactive{% endif %}"></span>
+                        <div>
+                            <h5 class="mb-1">
+                                System Status: 
+                                <span class="badge bg-{% if data.system_active %}success{% else %}secondary{% endif %} fs-6">
+                                    {% if data.system_active %}OPERATIONAL{% else %}OFFLINE{% endif %}
+                                </span>
+                            </h5>
+                            <small class="text-muted">
+                                Uptime: {{ data.uptime }} | 
+                                Last Update: <span id="last-update">{{ moment().format('HH:mm:ss') }}</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="row g-3">
+                            <div class="col-auto">
+                                <small class="text-muted d-block">CPU Usage</small>
+                                <strong class="text-{% if data.cpu_usage > 80 %}danger{% elif data.cpu_usage > 60 %}warning{% else %}success{% endif %}">
+                                    {{ data.cpu_usage }}%
+                                </strong>
+                            </div>
+                            <div class="col-auto">
+                                <small class="text-muted d-block">Memory Usage</small>
+                                <strong class="text-{% if data.memory_usage > 85 %}danger{% elif data.memory_usage > 70 %}warning{% else %}success{% endif %}">
+                                    {{ data.memory_usage }}%
+                                </strong>
+                            </div>
+                            <div class="col-auto">
+                                <small class="text-muted d-block">Network I/O</small>
+                                <strong class="text-info">{{ data.network_in }}MB/{{ data.network_out }}MB</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-lg-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase text-muted mb-2 fw-bold">Total Connections</h6>
+                        <h2 class="mb-1" id="total-connections">{{ "{:,}".format(data.total_connections) }}</h2>
+                        <div class="d-flex align-items-center">
+                            <small class="text-success me-2">
+                                <i class="bi bi-arrow-up"></i>
+                                +12.5%
+                            </small>
+                            <small class="text-muted">vs last hour</small>
+                        </div>
+                    </div>
+                    <div class="text-primary">
+                        <i class="bi bi-activity" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6 mb-4">
+        <div class="card stat-card danger h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase text-muted mb-2 fw-bold">Threats Blocked</h6>
+                        <h2 class="mb-1 text-danger" id="blocked-threats">{{ data.blocked_threats }}</h2>
+                        <div class="d-flex align-items-center">
+                            <small class="text-danger me-2">
+                                <i class="bi bi-arrow-up"></i>
+                                +{{ data.hourly_alerts_count }}
+                            </small>
+                            <small class="text-muted">in last hour</small>
+                        </div>
+                    </div>
+                    <div class="text-danger">
+                        <i class="bi bi-shield-x" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6 mb-4">
+        <div class="card stat-card success h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase text-muted mb-2 fw-bold">Active Rules</h6>
+                        <h2 class="mb-1 text-success">{{ data.active_rules }}</h2>
+                        <div class="d-flex align-items-center">
+                            <small class="text-success me-2">
+                                <i class="bi bi-check-circle"></i>
+                                All Active
+                            </small>
+                            <small class="text-muted">signatures loaded</small>
+                        </div>
+                    </div>
+                    <div class="text-success">
+                        <i class="bi bi-shield-check" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6 mb-4">
+        <div class="card stat-card warning h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase text-muted mb-2 fw-bold">Blocked IPs</h6>
+                        <h2 class="mb-1 text-warning" id="blocked-ips">{{ data.blocked_ips_count }}</h2>
+                        <div class="d-flex align-items-center">
+                            <small class="text-warning me-2">
+                                <i class="bi bi-ban"></i>
+                                Active
+                            </small>
+                            <small class="text-muted">currently blocked</small>
+                        </div>
+                    </div>
+                    <div class="text-warning">
+                        <i class="bi bi-ban" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real-time Charts and Analytics -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>
+                    Real-time Traffic Monitor
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="trafficChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart me-2"></i>
+                    Threat Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="threatChart" height="300"></canvas>
+                <div class="mt-3">
+                    {% for threat_type, count in data.threat_types.items() %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-secondary">{{ threat_type.replace('_', ' ').title() }}</span>
+                        <strong>{{ count }}</strong>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Geographic Threats and System Health -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-globe me-2"></i>
+                    Top Threat Sources
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if data.top_threat_sources %}
+                <div class="list-group list-group-flush">
+                    {% for country, count in data.top_threat_sources %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-geo-alt text-danger me-2"></i>
+                            <span>{{ country }}</span>
+                        </div>
+                        <span class="badge bg-danger rounded-pill">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-shield-check text-success" style="font-size: 3rem;"></i>
+                    <h6 class="mt-3 text-muted">No Threats Detected</h6>
+                    <p class="text-muted">All traffic appears clean</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-cpu me-2"></i>
+                    System Health
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-medium">CPU Usage</span>
+                        <span class="text-{% if data.cpu_usage > 80 %}danger{% elif data.cpu_usage > 60 %}warning{% else %}success{% endif %}">
+                            {{ data.cpu_usage }}%
+                        </span>
+                    </div>
+                    <div class="progress mb-1">
+                        <div class="progress-bar bg-{% if data.cpu_usage > 80 %}danger{% elif data.cpu_usage > 60 %}warning{% else %}success{% endif %}" 
+                             style="width: {{ data.cpu_usage }}%"></div>
+                    </div>
+                    <small class="text-muted">Normal operating range: 0-70%</small>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-medium">Memory Usage</span>
+                        <span class="text-{% if data.memory_usage > 85 %}danger{% elif data.memory_usage > 70 %}warning{% else %}success{% endif %}">
+                            {{ data.memory_usage }}%
+                        </span>
+                    </div>
+                    <div class="progress mb-1">
+                        <div class="progress-bar bg-{% if data.memory_usage > 85 %}danger{% elif data.memory_usage > 70 %}warning{% else %}success{% endif %}" 
+                             style="width: {{ data.memory_usage }}%"></div>
+                    </div>
+                    <small class="text-muted">8.2 GB / 12 GB used</small>
+                </div>
+                
+                <div class="mb-0">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-medium">Disk Usage</span>
+                        <span class="text-{% if data.disk_usage > 90 %}danger{% elif data.disk_usage > 75 %}warning{% else %}success{% endif %}">
+                            {{ data.disk_usage }}%
+                        </span>
+                    </div>
+                    <div class="progress mb-1">
+                        <div class="progress-bar bg-{% if data.disk_usage > 90 %}danger{% elif data.disk_usage > 75 %}warning{% else %}success{% endif %}" 
+                             style="width: {{ data.disk_usage }}%"></div>
+                    </div>
+                    <small class="text-muted">225 GB / 500 GB used</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Security Alerts -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Recent Security Alerts
+                </h5>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('export_alerts') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-download me-1"></i>
+                        Export
+                    </a>
+                    <a href="{{ url_for('alerts') }}" class="btn btn-primary btn-sm">
+                        View All Alerts
+                        <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if data.recent_alerts %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Severity</th>
+                                <th>Type</th>
+                                <th>Source</th>
+                                <th>Target</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in data.recent_alerts[:10] %}
+                            <tr>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ alert.timestamp.split('T')[1][:8] }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if alert.severity == 'critical' %}danger{% elif alert.severity == 'high' %}warning{% elif alert.severity == 'medium' %}info{% else %}secondary{% endif %}">
+                                        {{ alert.severity.upper() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">
+                                        {{ alert.threat_type.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <code class="small">{{ alert.source_ip }}</code>
+                                    {% if alert.country != 'Unknown' %}
+                                    <br><small class="text-muted">{{ alert.country }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <code class="small">{{ alert.dest_ip }}</code>
+                                </td>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 250px;" title="{{ alert.description }}">
+                                        {{ alert.description }}
+                                    </div>
+                                    <small class="text-muted">Confidence: {{ "%.0f"|format(alert.confidence * 100) }}%</small>
+                                </td>
+                                <td>
+                                    {% if alert.blocked %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-shield-x me-1"></i>
+                                        BLOCKED
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="bi bi-eye me-1"></i>
+                                        MONITORED
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" data-bs-toggle="tooltip" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        {% if current_user.role in ['admin', 'manager'] and not alert.blocked %}
+                                        <button class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Block IP">
+                                            <i class="bi bi-ban"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-shield-check text-success" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3 text-muted">No Recent Alerts</h4>
+                    <p class="text-muted">Your network is secure and running smoothly.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Real-time traffic chart
+const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+const trafficChart = new Chart(trafficCtx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Total Traffic',
+            data: [],
+            borderColor: '#1e40af',
+            backgroundColor: 'rgba(30, 64, 175, 0.1)',
+            tension: 0.4,
+            fill: true
+        }, {
+            label: 'Blocked Traffic',
+            data: [],
+            borderColor: '#dc2626',
+            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    }
+});
+
+// Threat distribution chart
+const threatCtx = document.getElementById('threatChart').getContext('2d');
+const threatChart = new Chart(threatCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            {% for threat_type in data.threat_types.keys() %}
+            '{{ threat_type.replace("_", " ").title() }}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            data: [
+                {% for count in data.threat_types.values() %}
+                {{ count }}{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: [
+                '#dc2626', '#d97706', '#059669', '#0891b2', '#7c3aed', '#db2777'
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            }
+        }
+    }
+});
+
+// Update charts with real-time data
+function updateCharts() {
+    const now = new Date();
+    const timeLabel = now.toLocaleTimeString();
+    
+    // Simulate traffic data
+    const totalTraffic = Math.floor(Math.random() * 150) + 75;
+    const blockedTraffic = Math.floor(Math.random() * 25) + 5;
+    
+    trafficChart.data.labels.push(timeLabel);
+    trafficChart.data.datasets[0].data.push(totalTraffic);
+    trafficChart.data.datasets[1].data.push(blockedTraffic);
+    
+    // Keep only last 15 data points
+    if (trafficChart.data.labels.length > 15) {
+        trafficChart.data.labels.shift();
+        trafficChart.data.datasets[0].data.shift();
+        trafficChart.data.datasets[1].data.shift();
+    }
+    
+    trafficChart.update('none');
+}
+
+// Update charts every 3 seconds
+setInterval(updateCharts, 3000);
+
+// Initialize charts with some data
+for (let i = 0; i < 8; i++) {
+    updateCharts();
+}
+
+// Update last update timestamp
+setInterval(function() {
+    document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+}, 1000);
+</script>
+{% endblock %}

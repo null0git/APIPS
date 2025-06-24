@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+
+{% block title %}Installation Guide - Documentation{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-download me-3"></i>
+                Installation Guide
+            </h1>
+            <p class="page-subtitle">Complete installation and setup instructions for the Advanced IPS System</p>
+        </div>
+        <div>
+            <a href="{{ url_for('documentation') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Documentation
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card sticky-top" style="top: 100px;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-list me-2"></i>
+                    Installation Steps
+                </h6>
+            </div>
+            <div class="card-body">
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="#requirements">System Requirements</a>
+                    <a class="nav-link" href="#download">Download & Extract</a>
+                    <a class="nav-link" href="#dependencies">Install Dependencies</a>
+                    <a class="nav-link" href="#database">Database Setup</a>
+                    <a class="nav-link" href="#configuration">Configuration</a>
+                    <a class="nav-link" href="#startup">First Startup</a>
+                    <a class="nav-link" href="#verification">Verification</a>
+                    <a class="nav-link" href="#production">Production Setup</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <!-- System Requirements -->
+        <section id="requirements" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-cpu me-2"></i>
+                        System Requirements
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Minimum Requirements:</h6>
+                            <ul>
+                                <li><strong>OS:</strong> Linux (Ubuntu 20.04+, CentOS 8+)</li>
+                                <li><strong>CPU:</strong> 2 cores, 2.0 GHz</li>
+                                <li><strong>RAM:</strong> 4 GB</li>
+                                <li><strong>Storage:</strong> 20 GB free space</li>
+                                <li><strong>Python:</strong> 3.8 or higher</li>
+                                <li><strong>Network:</strong> Internet connectivity</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Recommended Requirements:</h6>
+                            <ul>
+                                <li><strong>OS:</strong> Ubuntu 22.04 LTS</li>
+                                <li><strong>CPU:</strong> 4+ cores, 3.0+ GHz</li>
+                                <li><strong>RAM:</strong> 8+ GB</li>
+                                <li><strong>Storage:</strong> 100+ GB SSD</li>
+                                <li><strong>Python:</strong> 3.10 or higher</li>
+                                <li><strong>Network:</strong> Dedicated network interface</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> For production environments, consider using dedicated hardware or virtual machines with sufficient resources for your expected traffic volume.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download & Extract -->
+        <section id="download" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-download me-2"></i>
+                        Download & Extract
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Step 1: Download the IPS System</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Download the latest release<br>
+wget https://github.com/your-org/advanced-ips/releases/latest/download/advanced-ips.tar.gz<br>
+<br>
+# Or clone from repository<br>
+git clone https://github.com/your-org/advanced-ips.git<br>
+cd advanced-ips
+                        </code>
+                    </div>
+
+                    <h6>Step 2: Extract and Navigate</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Extract the archive<br>
+tar -xzf advanced-ips.tar.gz<br>
+cd advanced-ips<br>
+<br>
+# Check contents<br>
+ls -la
+                        </code>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>Expected Directory Structure:</strong>
+                        <pre class="mt-2 mb-0">
+advanced-ips/
+├── app.py                 # Main Flask application
+├── ips_engine.py         # IPS detection engine
+├── ips-client.py         # Client monitoring agent
+├── requirements.txt      # Python dependencies
+├── templates/            # Web interface templates
+├── static/              # Static assets
+├── scripts/             # Utility scripts
+└── docs/                # Documentation
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Install Dependencies -->
+        <section id="dependencies" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-box me-2"></i>
+                        Install Dependencies
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Step 1: Update System Packages</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Ubuntu/Debian<br>
+sudo apt update && sudo apt upgrade -y<br>
+sudo apt install python3 python3-pip python3-venv git -y<br>
+<br>
+# CentOS/RHEL<br>
+sudo yum update -y<br>
+sudo yum install python3 python3-pip git -y
+                        </code>
+                    </div>
+
+                    <h6>Step 2: Create Virtual Environment</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Create virtual environment<br>
+python3 -m venv ips-env<br>
+<br>
+# Activate virtual environment<br>
+source ips-env/bin/activate<br>
+<br>
+# Upgrade pip<br>
+pip install --upgrade pip
+                        </code>
+                    </div>
+
+                    <h6>Step 3: Install Python Dependencies</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Install required packages<br>
+pip install -r requirements.txt<br>
+<br>
+# Or install manually<br>
+pip install flask flask-login werkzeug requests psutil schedule cryptography
+                        </code>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> Always use a virtual environment to avoid conflicts with system Python packages.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Database Setup -->
+        <section id="database" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-database me-2"></i>
+                        Database Setup
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Initialize SQLite Database</h6>
+                    <p>The IPS system uses SQLite by default for simplicity. For production, consider PostgreSQL or MySQL.</p>
+                    
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Run database initialization script<br>
+python3 scripts/init_database.py<br>
+<br>
+# Verify database creation<br>
+ls -la *.db
+                        </code>
+                    </div>
+
+                    <h6>Production Database Setup (Optional)</h6>
+                    <p>For production environments, configure a dedicated database server:</p>
+                    
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# PostgreSQL setup<br>
+sudo apt install postgresql postgresql-contrib<br>
+sudo -u postgres createdb ips_database<br>
+sudo -u postgres createuser ips_user<br>
+<br>
+# Install PostgreSQL adapter<br>
+pip install psycopg2-binary<br>
+<br>
+# Update configuration in app.py<br>
+# DATABASE_URL = 'postgresql://ips_user:password@localhost/ips_database'
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration -->
+        <section id="configuration" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>
+                        Configuration
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Basic Configuration</h6>
+                    <p>The system works with default settings, but you may want to customize:</p>
+                    
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Create configuration file<br>
+cp config.example.py config.py<br>
+<br>
+# Edit configuration<br>
+nano config.py
+                        </code>
+                    </div>
+
+                    <h6>Key Configuration Options:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Setting</th>
+                                    <th>Description</th>
+                                    <th>Default</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>SECRET_KEY</code></td>
+                                    <td>Flask secret key for sessions</td>
+                                    <td>Auto-generated</td>
+                                </tr>
+                                <tr>
+                                    <td><code>HOST</code></td>
+                                    <td>Server bind address</td>
+                                    <td>0.0.0.0</td>
+                                </tr>
+                                <tr>
+                                    <td><code>PORT</code></td>
+                                    <td>Server port</td>
+                                    <td>5000</td>
+                                </tr>
+                                <tr>
+                                    <td><code>DEBUG</code></td>
+                                    <td>Debug mode</td>
+                                    <td>False</td>
+                                </tr>
+                                <tr>
+                                    <td><code>DATABASE_URL</code></td>
+                                    <td>Database connection string</td>
+                                    <td>SQLite</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <i class="bi bi-shield-exclamation me-2"></i>
+                        <strong>Security:</strong> Always change default passwords and generate a strong SECRET_KEY for production deployments.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- First Startup -->
+        <section id="startup" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-play-circle me-2"></i>
+                        First Startup
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Start the IPS System</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Ensure virtual environment is activated<br>
+source ips-env/bin/activate<br>
+<br>
+# Start the application<br>
+python3 app.py<br>
+<br>
+# You should see output like:<br>
+# 🚀 Starting Advanced IPS Flask Application...<br>
+# ✓ IPS System initialized successfully<br>
+# ✓ Background simulation started<br>
+# * Running on http://0.0.0.0:5000
+                        </code>
+                    </div>
+
+                    <h6>Access the Web Interface</h6>
+                    <p>Open your web browser and navigate to:</p>
+                    <div class="alert alert-info">
+                        <strong>URL:</strong> <code>http://your-server-ip:5000</code><br>
+                        <strong>Default Login:</strong><br>
+                        • Administrator: <code>admin</code> / <code>admin123</code><br>
+                        • Security Manager: <code>manager</code> / <code>manager123</code><br>
+                        • Security Analyst: <code>security</code> / <code>security123</code><br>
+                        • Viewer: <code>viewer</code> / <code>viewer123</code>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> Change default passwords immediately after first login!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Verification -->
+        <section id="verification" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Installation Verification
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Verify System Components</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>✅ Checklist:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Web interface accessible</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Login successful</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Dashboard displays data</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>System status shows "Active"</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Alerts are being generated</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Rules are loaded</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🔧 Troubleshooting:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-arrow-right me-2"></i>Check firewall settings</li>
+                                <li><i class="bi bi-arrow-right me-2"></i>Verify port 5000 is open</li>
+                                <li><i class="bi bi-arrow-right me-2"></i>Check application logs</li>
+                                <li><i class="bi bi-arrow-right me-2"></i>Ensure dependencies installed</li>
+                                <li><i class="bi bi-arrow-right me-2"></i>Verify database permissions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h6>Test Commands</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Check if service is running<br>
+curl http://localhost:5000<br>
+<br>
+# Check API endpoints<br>
+curl http://localhost:5000/api/realtime-stats<br>
+<br>
+# View application logs<br>
+tail -f ips_system.log
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Production Setup -->
+        <section id="production" class="mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-server me-2"></i>
+                        Production Deployment
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6>Production Considerations</h6>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        For production deployments, consider using a proper WSGI server like Gunicorn with a reverse proxy like Nginx.
+                    </div>
+
+                    <h6>Install Gunicorn</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+pip install gunicorn<br>
+<br>
+# Test Gunicorn<br>
+gunicorn --bind 0.0.0.0:5000 app:app
+                        </code>
+                    </div>
+
+                    <h6>Create Systemd Service</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Create service file<br>
+sudo nano /etc/systemd/system/advanced-ips.service<br>
+<br>
+[Unit]<br>
+Description=Advanced IPS System<br>
+After=network.target<br>
+<br>
+[Service]<br>
+Type=simple<br>
+User=ips<br>
+WorkingDirectory=/opt/advanced-ips<br>
+Environment=PATH=/opt/advanced-ips/ips-env/bin<br>
+ExecStart=/opt/advanced-ips/ips-env/bin/gunicorn --bind 0.0.0.0:5000 app:app<br>
+Restart=always<br>
+<br>
+[Install]<br>
+WantedBy=multi-user.target<br>
+<br>
+# Enable and start service<br>
+sudo systemctl enable advanced-ips<br>
+sudo systemctl start advanced-ips
+                        </code>
+                    </div>
+
+                    <h6>Configure Nginx (Optional)</h6>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+# Install Nginx<br>
+sudo apt install nginx<br>
+<br>
+# Create site configuration<br>
+sudo nano /etc/nginx/sites-available/advanced-ips<br>
+<br>
+server {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;listen 80;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;server_name your-domain.com;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;location / {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;proxy_pass http://127.0.0.1:5000;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header Host $host;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header X-Real-IP $remote_addr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+<br>
+# Enable site<br>
+sudo ln -s /etc/nginx/sites-available/advanced-ips /etc/nginx/sites-enabled/<br>
+sudo systemctl restart nginx
+                        </code>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>Congratulations!</strong> Your Advanced IPS System is now installed and ready for use. 
+                        Proceed to the <a href="{{ url_for('documentation_section', section='getting-started') }}" class="alert-link">Getting Started Guide</a> 
+                        to learn how to use the system effectively.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

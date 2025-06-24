@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Client Management - Advanced IPS System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-hdd-network me-3"></i>
+                Client Management
+            </h1>
+            <p class="page-subtitle">Monitor and manage connected server agents</p>
+        </div>
+        <div>
+            <a href="{{ url_for('documentation_section', section='client-setup') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Add New Client
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Clients</h6>
+                        <h3 class="mb-0" id="total-clients">{{ stats.total }}</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                        <i class="bi bi-server text-success fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Active Clients</h6>
+                        <h3 class="mb-0" id="active-clients">{{ stats.active }}</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                        <i class="bi bi-check-circle text-info fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Inactive Clients</h6>
+                        <h3 class="mb-0" id="inactive-clients">{{ stats.inactive }}</h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                        <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Critical Alerts</h6>
+                        <h3 class="mb-0" id="critical-alerts">{{ stats.critical }}</h3>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                        <i class="bi bi-shield-exclamation text-danger fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Client List -->
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-list me-2"></i>
+                Connected Clients
+            </h5>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="refreshClients()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="filterClients('all')">All Clients</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterClients('active')">Active Only</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterClients('inactive')">Inactive Only</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterClients('critical')">Critical Only</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="clientsTable">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Hostname</th>
+                        <th>IP Address</th>
+                        <th>OS</th>
+                        <th>Environment</th>
+                        <th>Last Seen</th>
+                        <th>Health</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td>
+                            <span class="status-indicator {{ 'status-active' if client.status == 'active' else 'status-inactive' }}"></span>
+                            <span class="badge bg-{{ 'success' if client.status == 'active' else 'secondary' }}">
+                                {{ client.status.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ client.hostname }}</strong>
+                            {% if client.tags %}
+                            <br>
+                            {% for tag in client.tags %}
+                            <span class="badge bg-light text-dark me-1">{{ tag }}</span>
+                            {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td>{{ client.ip_address }}</td>
+                        <td>
+                            <i class="bi bi-{{ 'windows' if 'Windows' in client.os_type else 'ubuntu' if 'Ubuntu' in client.os_type else 'server' }} me-1"></i>
+                            {{ client.os_type }}
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'danger' if client.environment == 'production' else 'warning' if client.environment == 'staging' else 'info' }}">
+                                {{ client.environment.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ client.last_seen }}</small>
+                        </td>
+                        <td>
+                            {% if client.health_status == 'healthy' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>Healthy
+                            </span>
+                            {% elif client.health_status == 'warning' %}
+                            <span class="badge bg-warning">
+                                <i class="bi bi-exclamation-triangle me-1"></i>Warning
+                            </span>
+                            {% else %}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle me-1"></i>Critical
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewClientDetails('{{ client.id }}')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewClientMetrics('{{ client.id }}')">
+                                    <i class="bi bi-graph-up"></i>
+                                </button>
+                                {% if current_user.role == 'admin' %}
+                                <button class="btn btn-outline-danger" onclick="removeClient('{{ client.id }}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Client Details Modal -->
+<div class="modal fade" id="clientDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Client Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="clientDetailsContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Refresh clients data
+    function refreshClients() {
+        location.reload();
+    }
+    
+    // Filter clients by status
+    function filterClients(filter) {
+        const table = document.getElementById('clientsTable');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        for (let row of rows) {
+            const statusCell = row.cells[0];
+            const healthCell = row.cells[6];
+            let show = true;
+            
+            switch(filter) {
+                case 'active':
+                    show = statusCell.textContent.includes('Active');
+                    break;
+                case 'inactive':
+                    show = statusCell.textContent.includes('Inactive');
+                    break;
+                case 'critical':
+                    show = healthCell.textContent.includes('Critical');
+                    break;
+                case 'all':
+                default:
+                    show = true;
+                    break;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        }
+    }
+    
+    // View client details
+    function viewClientDetails(clientId) {
+        // Simulate client details (in production, fetch from API)
+        const clientDetails = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>System Information</h6>
+                    <table class="table table-sm">
+                        <tr><td><strong>Client ID:</strong></td><td>${clientId}</td></tr>
+                        <tr><td><strong>Hostname:</strong></td><td>web-server-01</td></tr>
+                        <tr><td><strong>IP Address:</strong></td><td>192.168.1.100</td></tr>
+                        <tr><td><strong>OS:</strong></td><td>Ubuntu 22.04 LTS</td></tr>
+                        <tr><td><strong>Architecture:</strong></td><td>x86_64</td></tr>
+                        <tr><td><strong>Uptime:</strong></td><td>15 days, 7 hours</td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Performance Metrics</h6>
+                    <table class="table table-sm">
+                        <tr><td><strong>CPU Usage:</strong></td><td>23%</td></tr>
+                        <tr><td><strong>Memory Usage:</strong></td><td>67%</td></tr>
+                        <tr><td><strong>Disk Usage:</strong></td><td>45%</td></tr>
+                        <tr><td><strong>Network I/O:</strong></td><td>2.4 MB/s</td></tr>
+                        <tr><td><strong>Load Average:</strong></td><td>0.85, 0.92, 1.01</td></tr>
+                        <tr><td><strong>Processes:</strong></td><td>156</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h6>Recent Activity</h6>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Last heartbeat received 2 minutes ago. All systems operational.
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('clientDetailsContent').innerHTML = clientDetails;
+        new bootstrap.Modal(document.getElementById('clientDetailsModal')).show();
+    }
+    
+    // View client metrics
+    function viewClientMetrics(clientId) {
+        // Redirect to metrics page (would be implemented)
+        alert('Metrics view for client ' + clientId + ' would open here');
+    }
+    
+    // Remove client
+    function removeClient(clientId) {
+        if (confirm('Are you sure you want to remove this client? This action cannot be undone.')) {
+            // In production, make API call to remove client
+            alert('Client ' + clientId + ' would be removed');
+        }
+    }
+    
+    // Initialize DataTable
+    $(document).ready(function() {
+        $('#clientsTable').DataTable({
+            responsive: true,
+            pageLength: 25,
+            order: [[5, 'desc']], // Sort by last seen
+            columnDefs: [
+                { orderable: false, targets: [7] } // Disable sorting for actions column
+            ]
+        });
+    });
+</script>
+{% endblock %}

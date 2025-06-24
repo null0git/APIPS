@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Advanced IPS System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-gear me-2"></i>
+        System Settings
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetToDefaults()">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                Reset to Defaults
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="saveSettings()">
+                <i class="bi bi-check-lg me-1"></i>
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('save_settings') }}" id="settingsForm">
+    <!-- Settings Tabs -->
+    <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button">
+                <i class="bi bi-gear me-2"></i>General
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button">
+                <i class="bi bi-shield-lock me-2"></i>Security
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="network-tab" data-bs-toggle="tab" data-bs-target="#network" type="button">
+                <i class="bi bi-network-widescreen me-2"></i>Network
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="alerts-tab" data-bs-toggle="tab" data-bs-target="#alerts" type="button">
+                <i class="bi bi-bell me-2"></i>Alerts
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance" type="button">
+                <i class="bi bi-speedometer2 me-2"></i>Performance
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="settingsTabContent">
+        <!-- General Settings -->
+        <div class="tab-pane fade show active" id="general" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">General Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="systemName" class="form-label">System Name</label>
+                                <input type="text" class="form-control" id="systemName" name="system_name" 
+                                       value="{{ config.general.system_name }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="logLevel" class="form-label">Log Level</label>
+                                <select class="form-select" id="logLevel" name="log_level">
+                                    <option value="debug" {% if config.general.log_level == 'debug' %}selected{% endif %}>Debug</option>
+                                    <option value="info" {% if config.general.log_level == 'info' %}selected{% endif %}>Info</option>
+                                    <option value="warning" {% if config.general.log_level == 'warning' %}selected{% endif %}>Warning</option>
+                                    <option value="error" {% if config.general.log_level == 'error' %}selected{% endif %}>Error</option>
+                                    <option value="critical" {% if config.general.log_level == 'critical' %}selected{% endif %}>Critical</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="maxConnections" class="form-label">Maximum Connections</label>
+                                <input type="number" class="form-control" id="maxConnections" name="max_connections" 
+                                       value="{{ config.general.max_connections }}" min="1000" max="100000">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="autoUpdate" name="auto_update" 
+                                           {% if config.general.auto_update %}checked{% endif %}>
+                                    <label class="form-check-label" for="autoUpdate">
+                                        <strong>Automatic Updates</strong><br>
+                                        <small class="text-muted">Automatically update security definitions</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="maintenanceMode" name="maintenance_mode" 
+                                           {% if config.general.maintenance_mode %}checked{% endif %}>
+                                    <label class="form-check-label" for="maintenanceMode">
+                                        <strong>Maintenance Mode</strong><br>
+                                        <small class="text-muted">Temporarily disable protection</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="tab-pane fade" id="security" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Security Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableFirewall" name="enable_firewall" 
+                                           {% if config.security.enable_firewall %}checked{% endif %}>
+                                    <label class="form-check-label" for="enableFirewall">
+                                        <strong>Firewall Protection</strong><br>
+                                        <small class="text-muted">Enable network firewall</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableIPS" name="enable_ips" 
+                                           {% if config.security.enable_ips %}checked{% endif %}>
+                                    <label class="form-check-label" for="enableIPS">
+                                        <strong>Intrusion Prevention</strong><br>
+                                        <small class="text-muted">Enable IPS engine</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableAntimalware" name="enable_antimalware" 
+                                           {% if config.security.enable_antimalware %}checked{% endif %}>
+                                    <label class="form-check-label" for="enableAntimalware">
+                                        <strong>Anti-Malware</strong><br>
+                                        <small class="text-muted">Scan for malware signatures</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="blockSuspiciousIPs" name="block_suspicious_ips" 
+                                           {% if config.security.block_suspicious_ips %}checked{% endif %}>
+                                    <label class="form-check-label" for="blockSuspiciousIPs">
+                                        <strong>Block Suspicious IPs</strong><br>
+                                        <small class="text-muted">Automatically block threat sources</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="quarantineThreshold" class="form-label">
+                                    Quarantine Threshold: <span id="quarantineValue">{{ config.security.quarantine_threshold }}</span>%
+                                </label>
+                                <input type="range" class="form-range" id="quarantineThreshold" name="quarantine_threshold" 
+                                       min="50" max="100" step="5" value="{{ config.security.quarantine_threshold }}"
+                                       oninput="document.getElementById('quarantineValue').textContent = this.value">
+                                <small class="text-muted">Threat confidence level to trigger quarantine</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="alertThreshold" class="form-label">
+                                    Alert Threshold: <span id="alertValue">{{ config.security.alert_threshold }}</span>%
+                                </label>
+                                <input type="range" class="form-range" id="alertThreshold" name="alert_threshold" 
+                                       min="30" max="100" step="5" value="{{ config.security.alert_threshold }}"
+                                       oninput="document.getElementById('alertValue').textContent = this.value">
+                                <small class="text-muted">Minimum confidence level to generate alerts</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Settings -->
+        <div class="tab-pane fade" id="network" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Network Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="monitoredInterfaces" class="form-label">Monitored Interfaces</label>
+                                <div class="border rounded p-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="eth0" name="interfaces" value="eth0" checked>
+                                        <label class="form-check-label" for="eth0">eth0 - Primary Interface</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="eth1" name="interfaces" value="eth1" checked>
+                                        <label class="form-check-label" for="eth1">eth1 - Secondary Interface</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="wlan0" name="interfaces" value="wlan0">
+                                        <label class="form-check-label" for="wlan0">wlan0 - Wireless Interface</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="captureMode" class="form-label">Capture Mode</label>
+                                <select class="form-select" id="captureMode" name="capture_mode">
+                                    <option value="promiscuous" selected>Promiscuous</option>
+                                    <option value="monitor">Monitor</option>
+                                    <option value="tap">TAP</option>
+                                    <option value="span">SPAN</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bufferSize" class="form-label">
+                                    Buffer Size: <span id="bufferValue">1024</span> MB
+                                </label>
+                                <input type="range" class="form-range" id="bufferSize" name="buffer_size" 
+                                       min="256" max="4096" step="256" value="1024"
+                                       oninput="document.getElementById('bufferValue').textContent = this.value">
+                            </div>
+                            <div class="mb-3">
+                                <label for="analysisDepth" class="form-label">Analysis Depth</label>
+                                <select class="form-select" id="analysisDepth" name="analysis_depth">
+                                    <option value="shallow">Shallow</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="deep" selected>Deep</option>
+                                    <option value="comprehensive">Comprehensive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Settings -->
+        <div class="tab-pane fade" id="alerts" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Alert Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableEmail" name="enable_email" 
+                                           {% if config.alerts.enable_email %}checked{% endif %}>
+                                    <label class="form-check-label" for="enableEmail">
+                                        <strong>Email Alerts</strong><br>
+                                        <small class="text-muted">Send alerts via email</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableSMS" name="enable_sms" 
+                                           {% if config.alerts.enable_sms %}checked{% endif %}>
+                                    <label class="form-check-label" for="enableSMS">
+                                        <strong>SMS Alerts</strong><br>
+                                        <small class="text-muted">Send critical alerts via SMS</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableWebhooks" name="enable_webhooks" 
+                                           {% if config.alerts.enable_webhooks %}checked{% endif %}>
+                                    <label class="form-check-label" for="enableWebhooks">
+                                        <strong>Webhook Integration</strong><br>
+                                        <small class="text-muted">Send alerts to external systems</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="alertFrequency" class="form-label">Alert Frequency</label>
+                                <select class="form-select" id="alertFrequency" name="alert_frequency">
+                                    <option value="immediate" {% if config.alerts.alert_frequency == 'immediate' %}selected{% endif %}>Immediate</option>
+                                    <option value="every5min">Every 5 minutes</option>
+                                    <option value="every15min">Every 15 minutes</option>
+                                    <option value="hourly">Hourly</option>
+                                    <option value="daily">Daily</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="emailRecipients" class="form-label">Email Recipients</label>
+                                <textarea class="form-control" id="emailRecipients" name="email_recipients" rows="3" 
+                                          placeholder="Enter email addresses, one per line">{{ config.alerts.email_recipients|join('\n') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Settings -->
+        <div class="tab-pane fade" id="performance" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Performance Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="cpuThreshold" class="form-label">
+                                    CPU Threshold: <span id="cpuValue">{{ config.performance.cpu_threshold }}</span>%
+                                </label>
+                                <input type="range" class="form-range" id="cpuThreshold" name="cpu_threshold" 
+                                       min="50" max="95" step="5" value="{{ config.performance.cpu_threshold }}"
+                                       oninput="document.getElementById('cpuValue').textContent = this.value">
+                                <small class="text-muted">Alert when CPU usage exceeds this threshold</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="memoryThreshold" class="form-label">
+                                    Memory Threshold: <span id="memoryValue">{{ config.performance.memory_threshold }}</span>%
+                                </label>
+                                <input type="range" class="form-range" id="memoryThreshold" name="memory_threshold" 
+                                       min="50" max="95" step="5" value="{{ config.performance.memory_threshold }}"
+                                       oninput="document.getElementById('memoryValue').textContent = this.value">
+                                <small class="text-muted">Alert when memory usage exceeds this threshold</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="diskThreshold" class="form-label">
+                                    Disk Threshold: <span id="diskValue">{{ config.performance.disk_threshold }}</span>%
+                                </label>
+                                <input type="range" class="form-range" id="diskThreshold" name="disk_threshold" 
+                                       min="70" max="95" step="5" value="{{ config.performance.disk_threshold }}"
+                                       oninput="document.getElementById('diskValue').textContent = this.value">
+                                <small class="text-muted">Alert when disk usage exceeds this threshold</small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableOptimization" name="enable_optimization" 
+                                           {% if config.performance.enable_optimization %}checked{% endif %}>
+                                    <label class="form-check-label" for="enableOptimization">
+                                        <strong>Performance Optimization</strong><br>
+                                        <small class="text-muted">Enable automatic performance tuning</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function saveSettings() {
+    document.getElementById('settingsForm').submit();
+}
+
+function resetToDefaults() {
+    if (confirm('Are you sure you want to reset all settings to their default values?')) {
+        // Reset form to default values
+        location.reload();
+    }
+}
+
+// Mark form as changed when user modifies settings
+let formChanged = false;
+document.getElementById('settingsForm').addEventListener('change', function() {
+    formChanged = true;
+});
+
+// Warn user about unsaved changes
+window.addEventListener('beforeunload', function(e) {
+    if (formChanged) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+</script>
+{% endblock %}

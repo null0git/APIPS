@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation - Advanced IPS System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-book me-3"></i>
+                Documentation
+            </h1>
+            <p class="page-subtitle">Comprehensive guide to using the Advanced IPS System</p>
+        </div>
+        <div>
+            <span class="badge bg-primary fs-6">Version 2.0</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Start -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="bi bi-play-fill text-success fs-4"></i>
+                    </div>
+                    <h5 class="card-title mb-0">Quick Start</h5>
+                </div>
+                <p class="card-text">Get up and running with the IPS system in minutes. Perfect for new users.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Installation Guide</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Initial Configuration</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>First Login</li>
+                </ul>
+                <a href="{{ url_for('documentation_section', section='getting-started') }}" class="btn btn-success">
+                    <i class="bi bi-arrow-right me-1"></i>Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Guide -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="bi bi-person-check text-primary fs-4"></i>
+                    </div>
+                    <h5 class="card-title mb-0">User Guide</h5>
+                </div>
+                <p class="card-text">Comprehensive guide covering all features and functionality of the system.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-primary me-2"></i>Dashboard Overview</li>
+                    <li><i class="bi bi-check-circle text-primary me-2"></i>Alert Management</li>
+                    <li><i class="bi bi-check-circle text-primary me-2"></i>Analytics & Reporting</li>
+                </ul>
+                <a href="{{ url_for('documentation_section', section='user-guide') }}" class="btn btn-primary">
+                    <i class="bi bi-book me-1"></i>Read Guide
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Rules -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="bi bi-shield-lock text-warning fs-4"></i>
+                    </div>
+                    <h5 class="card-title mb-0">Security Rules</h5>
+                </div>
+                <p class="card-text">Learn how to create, manage, and optimize security rules for maximum protection.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-warning me-2"></i>Rule Creation</li>
+                    <li><i class="bi bi-check-circle text-warning me-2"></i>Pattern Matching</li>
+                    <li><i class="bi bi-check-circle text-warning me-2"></i>Best Practices</li>
+                </ul>
+                <a href="{{ url_for('documentation_section', section='rules-management') }}" class="btn btn-warning">
+                    <i class="bi bi-shield-lock me-1"></i>Manage Rules
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Setup -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-info bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="bi bi-server text-info fs-4"></i>
+                    </div>
+                    <h5 class="card-title mb-0">Client Monitoring</h5>
+                </div>
+                <p class="card-text">Deploy monitoring agents on your servers for comprehensive network visibility.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-info me-2"></i>Agent Installation</li>
+                    <li><i class="bi bi-check-circle text-info me-2"></i>Configuration</li>
+                    <li><i class="bi bi-check-circle text-info me-2"></i>Monitoring Setup</li>
+                </ul>
+                <a href="{{ url_for('documentation_section', section='client-setup') }}" class="btn btn-info">
+                    <i class="bi bi-server me-1"></i>Setup Clients
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Reference -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-secondary bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="bi bi-code-slash text-secondary fs-4"></i>
+                    </div>
+                    <h5 class="card-title mb-0">API Reference</h5>
+                </div>
+                <p class="card-text">Complete API documentation for developers and system integrators.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-secondary me-2"></i>REST API Endpoints</li>
+                    <li><i class="bi bi-check-circle text-secondary me-2"></i>Authentication</li>
+                    <li><i class="bi bi-check-circle text-secondary me-2"></i>Code Examples</li>
+                </ul>
+                <a href="{{ url_for('documentation_section', section='api-reference') }}" class="btn btn-secondary">
+                    <i class="bi bi-code-slash me-1"></i>View API
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="bi bi-tools text-danger fs-4"></i>
+                    </div>
+                    <h5 class="card-title mb-0">Troubleshooting</h5>
+                </div>
+                <p class="card-text">Common issues and solutions to keep your IPS system running smoothly.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-danger me-2"></i>Common Issues</li>
+                    <li><i class="bi bi-check-circle text-danger me-2"></i>Performance Tuning</li>
+                    <li><i class="bi bi-check-circle text-danger me-2"></i>Log Analysis</li>
+                </ul>
+                <a href="{{ url_for('documentation_section', section='troubleshooting') }}" class="btn btn-danger">
+                    <i class="bi bi-tools me-1"></i>Get Help
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Updates -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Recent Documentation Updates
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="bg-success bg-opacity-10 p-2 rounded me-3">
+                                <i class="bi bi-plus-circle text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Client Monitoring Guide Added</h6>
+                                <p class="text-muted mb-1">Complete guide for setting up server monitoring clients</p>
+                                <small class="text-muted">2 days ago</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="bg-info bg-opacity-10 p-2 rounded me-3">
+                                <i class="bi bi-arrow-clockwise text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">API Reference Updated</h6>
+                                <p class="text-muted mb-1">New endpoints for client management and metrics</p>
+                                <small class="text-muted">1 week ago</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="bg-warning bg-opacity-10 p-2 rounded me-3">
+                                <i class="bi bi-shield-check text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Security Best Practices</h6>
+                                <p class="text-muted mb-1">Enhanced security recommendations and compliance guidelines</p>
+                                <small class="text-muted">2 weeks ago</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                                <i class="bi bi-book text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">User Guide Improvements</h6>
+                                <p class="text-muted mb-1">Added screenshots and step-by-step tutorials</p>
+                                <small class="text-muted">3 weeks ago</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-info-circle fs-4 me-3"></i>
+                <div>
+                    <h6 class="mb-1">Need Additional Help?</h6>
+                    <p class="mb-0">
+                        Can't find what you're looking for? Contact our support team at 
+                        <strong>support@company.com</strong> or check our 
+                        <a href="{{ url_for('documentation_section', section='troubleshooting') }}" class="alert-link">troubleshooting guide</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

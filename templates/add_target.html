@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+
+{% block title %}Add Monitoring Target - Advanced IPS System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-plus-circle me-2"></i>
+        Add Monitoring Target
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('monitoring_targets') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Targets
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Target Configuration</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="targetForm">
+                    <!-- Target Type Selection -->
+                    <div class="mb-4">
+                        <label class="form-label">Target Type</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="target_type" id="type_network" value="network" checked>
+                                    <label class="form-check-label" for="type_network">
+                                        <i class="bi bi-ethernet me-2"></i>Network Device
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="target_type" id="type_wifi" value="wifi">
+                                    <label class="form-check-label" for="type_wifi">
+                                        <i class="bi bi-wifi me-2"></i>WiFi Device
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="target_type" id="type_server" value="server">
+                                    <label class="form-check-label" for="type_server">
+                                        <i class="bi bi-server me-2"></i>Server
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="target_type" id="type_website" value="website">
+                                    <label class="form-check-label" for="type_website">
+                                        <i class="bi bi-globe me-2"></i>Website/API
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="target_type" id="type_computer" value="computer">
+                                    <label class="form-check-label" for="type_computer">
+                                        <i class="bi bi-pc-display me-2"></i>Computer
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="target_type" id="type_custom" value="custom">
+                                    <label class="form-check-label" for="type_custom">
+                                        <i class="bi bi-gear me-2"></i>Custom
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Basic Information -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="target_name" class="form-label">Target Name</label>
+                                <input type="text" class="form-control" id="target_name" name="target_name" required>
+                                <div class="form-text">Descriptive name for this target</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="target_address" class="form-label">Address</label>
+                                <input type="text" class="form-control" id="target_address" name="target_address" required>
+                                <div class="form-text" id="address_help">IP address, hostname, or URL</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Protocol and Port -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="protocol" class="form-label">Protocol</label>
+                                <select class="form-select" id="protocol" name="protocol">
+                                    <option value="icmp">ICMP (Ping)</option>
+                                    <option value="tcp">TCP</option>
+                                    <option value="udp">UDP</option>
+                                    <option value="http">HTTP</option>
+                                    <option value="https">HTTPS</option>
+                                    <option value="ssh">SSH</option>
+                                    <option value="ftp">FTP</option>
+                                    <option value="smtp">SMTP</option>
+                                    <option value="snmp">SNMP</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="target_port" class="form-label">Port</label>
+                                <input type="number" class="form-control" id="target_port" name="target_port" min="1" max="65535">
+                                <div class="form-text">Leave empty for default port</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monitoring Configuration -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="monitoring_interval" class="form-label">Monitoring Interval (seconds)</label>
+                                <select class="form-select" id="monitoring_interval" name="monitoring_interval">
+                                    <option value="30">30 seconds</option>
+                                    <option value="60" selected>1 minute</option>
+                                    <option value="300">5 minutes</option>
+                                    <option value="600">10 minutes</option>
+                                    <option value="1800">30 minutes</option>
+                                    <option value="3600">1 hour</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="tags" class="form-label">Tags</label>
+                                <input type="text" class="form-control" id="tags" name="tags" placeholder="production, critical, web">
+                                <div class="form-text">Comma-separated tags for organization</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Optional description of this target"></textarea>
+                    </div>
+
+                    <!-- Advanced Options -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#advancedOptions">
+                                    <i class="bi bi-chevron-down me-2"></i>Advanced Options
+                                </button>
+                            </h6>
+                        </div>
+                        <div class="collapse" id="advancedOptions">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="timeout" class="form-label">Timeout (seconds)</label>
+                                            <input type="number" class="form-control" id="timeout" name="timeout" value="10" min="1" max="300">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="retry_count" class="form-label">Retry Count</label>
+                                            <input type="number" class="form-control" id="retry_count" name="retry_count" value="3" min="1" max="10">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="enabled" name="enabled" checked>
+                                            <label class="form-check-label" for="enabled">
+                                                Enable monitoring immediately
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="alert_on_failure" name="alert_on_failure" checked>
+                                            <label class="form-check-label" for="alert_on_failure">
+                                                Send alerts on failure
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('monitoring_targets') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-primary me-2" onclick="testConnection()">
+                                <i class="bi bi-play me-1"></i>Test Connection
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>Add Target
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Panel -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Target Types Guide
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="target-help" id="help-network">
+                    <h6><i class="bi bi-ethernet me-2"></i>Network Device</h6>
+                    <p>Monitor routers, switches, and network equipment.</p>
+                    <ul class="small">
+                        <li>Use IP address or hostname</li>
+                        <li>ICMP ping for basic connectivity</li>
+                        <li>SNMP for detailed metrics</li>
+                    </ul>
+                </div>
+
+                <div class="target-help" id="help-wifi" style="display: none;">
+                    <h6><i class="bi bi-wifi me-2"></i>WiFi Device</h6>
+                    <p>Monitor wireless access points and WiFi devices.</p>
+                    <ul class="small">
+                        <li>Monitor signal strength</li>
+                        <li>Check connectivity status</li>
+                        <li>Track bandwidth usage</li>
+                    </ul>
+                </div>
+
+                <div class="target-help" id="help-server" style="display: none;">
+                    <h6><i class="bi bi-server me-2"></i>Server</h6>
+                    <p>Monitor physical and virtual servers.</p>
+                    <ul class="small">
+                        <li>Check service availability</li>
+                        <li>Monitor resource usage</li>
+                        <li>Track performance metrics</li>
+                    </ul>
+                </div>
+
+                <div class="target-help" id="help-website" style="display: none;">
+                    <h6><i class="bi bi-globe me-2"></i>Website/API</h6>
+                    <p>Monitor websites, web applications, and APIs.</p>
+                    <ul class="small">
+                        <li>Check HTTP response codes</li>
+                        <li>Monitor response times</li>
+                        <li>Validate content and certificates</li>
+                    </ul>
+                </div>
+
+                <div class="target-help" id="help-computer" style="display: none;">
+                    <h6><i class="bi bi-pc-display me-2"></i>Computer</h6>
+                    <p>Monitor desktop computers and workstations.</p>
+                    <ul class="small">
+                        <li>Check system availability</li>
+                        <li>Monitor resource usage</li>
+                        <li>Track security status</li>
+                    </ul>
+                </div>
+
+                <div class="target-help" id="help-custom" style="display: none;">
+                    <h6><i class="bi bi-gear me-2"></i>Custom</h6>
+                    <p>Create custom monitoring targets.</p>
+                    <ul class="small">
+                        <li>Define custom protocols</li>
+                        <li>Set specific monitoring rules</li>
+                        <li>Configure custom alerts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Common Ports Reference -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-list-ol me-2"></i>
+                    Common Ports
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row small">
+                    <div class="col-6">
+                        <strong>Web Services:</strong><br>
+                        HTTP: 80<br>
+                        HTTPS: 443<br>
+                        <br>
+                        <strong>Email:</strong><br>
+                        SMTP: 25, 587<br>
+                        POP3: 110<br>
+                        IMAP: 143<br>
+                    </div>
+                    <div class="col-6">
+                        <strong>Remote Access:</strong><br>
+                        SSH: 22<br>
+                        Telnet: 23<br>
+                        RDP: 3389<br>
+                        <br>
+                        <strong>File Transfer:</strong><br>
+                        FTP: 21<br>
+                        SFTP: 22<br>
+                        TFTP: 69<br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Update help content based on target type selection
+document.querySelectorAll('input[name="target_type"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Hide all help sections
+        document.querySelectorAll('.target-help').forEach(help => {
+            help.style.display = 'none';
+        });
+        
+        // Show relevant help section
+        const helpSection = document.getElementById(`help-${this.value}`);
+        if (helpSection) {
+            helpSection.style.display = 'block';
+        }
+        
+        // Update address help text
+        const addressHelp = document.getElementById('address_help');
+        switch(this.value) {
+            case 'website':
+                addressHelp.textContent = 'URL (e.g., https://example.com)';
+                break;
+            case 'network':
+            case 'server':
+            case 'computer':
+                addressHelp.textContent = 'IP address or hostname';
+                break;
+            case 'wifi':
+                addressHelp.textContent = 'WiFi device IP or MAC address';
+                break;
+            default:
+                addressHelp.textContent = 'IP address, hostname, or URL';
+        }
+        
+        // Update default port based on protocol
+        updateDefaultPort();
+    });
+});
+
+// Update default port when protocol changes
+document.getElementById('protocol').addEventListener('change', updateDefaultPort);
+
+function updateDefaultPort() {
+    const protocol = document.getElementById('protocol').value;
+    const portField = document.getElementById('target_port');
+    
+    const defaultPorts = {
+        'http': 80,
+        'https': 443,
+        'ssh': 22,
+        'ftp': 21,
+        'smtp': 25,
+        'snmp': 161,
+        'tcp': '',
+        'udp': '',
+        'icmp': ''
+    };
+    
+    portField.value = defaultPorts[protocol] || '';
+}
+
+function testConnection() {
+    const formData = new FormData(document.getElementById('targetForm'));
+    const testData = {
+        address: formData.get('target_address'),
+        port: formData.get('target_port'),
+        protocol: formData.get('protocol'),
+        timeout: formData.get('timeout') || 10
+    };
+    
+    if (!testData.address) {
+        alert('Please enter a target address first.');
+        return;
+    }
+    
+    // Show loading state
+    const testBtn = event.target;
+    const originalText = testBtn.innerHTML;
+    testBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Testing...';
+    testBtn.disabled = true;
+    
+    fetch('/api/test-connection', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Connection test successful!\nResponse time: ${data.response_time}ms\nStatus: ${data.status}`);
+        } else {
+            alert(`Connection test failed:\n${data.error}`);
+        }
+    })
+    .catch(error => {
+        alert('Test failed: ' + error);
+    })
+    .finally(() => {
+        testBtn.innerHTML = originalText;
+        testBtn.disabled = false;
+    });
+}
+
+// Initialize default port on page load
+updateDefaultPort();
+</script>
+{% endblock %}

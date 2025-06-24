@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Threat Intelligence - Advanced IPS System{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-globe me-3"></i>
+                Threat Intelligence Dashboard
+            </h1>
+            <p class="page-subtitle">Global threat analysis and geographic attack patterns</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="refreshThreatData()">
+                <i class="bi bi-arrow-clockwise me-2"></i>
+                Refresh Data
+            </button>
+            <button class="btn btn-primary">
+                <i class="bi bi-download me-2"></i>
+                Export Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Global Threat Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card danger h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-globe text-danger mb-2" style="font-size: 2rem;"></i>
+                <h3 class="text-danger">{{ threat_locations|length }}</h3>
+                <p class="mb-0">Countries with Threats</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card warning h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-shield-exclamation text-warning mb-2" style="font-size: 2rem;"></i>
+                <h3 class="text-warning">{{ top_attacking_ips|length }}</h3>
+                <p class="mb-0">Active Threat Sources</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card info h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-eye text-info mb-2" style="font-size: 2rem;"></i>
+                <h3 class="text-info">{{ threat_locations|sum(attribute='total_threats') }}</h3>
+                <p class="mb-0">Total Threats Detected</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card success h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-shield-check text-success mb-2" style="font-size: 2rem;"></i>
+                <h3 class="text-success">{{ threat_locations|sum(attribute='blocked_threats') }}</h3>
+                <p class="mb-0">Threats Blocked</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Geographic Threat Map -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-map me-2"></i>
+                    Global Threat Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="threat-map-container" style="background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%); border-radius: 1rem; padding: 2rem; min-height: 400px; position: relative;">
+                    <!-- Simulated World Map -->
+                    <div class="world-map-simulation">
+                        <svg viewBox="0 0 1000 500" style="width: 100%; height: 400px;">
+                            <!-- Simplified world map paths -->
+                            <path d="M150,200 Q200,180 250,200 L300,190 Q350,200 400,210 L450,200 Q500,190 550,200 L600,210 Q650,200 700,190 L750,200 Q800,210 850,200" 
+                                  stroke="#94a3b8" stroke-width="2" fill="none" opacity="0.3"/>
+                            <path d="M100,250 Q150,240 200,250 L250,240 Q300,250 350,260 L400,250 Q450,240 500,250 L550,260 Q600,250 650,240 L700,250 Q750,260 800,250" 
+                                  stroke="#94a3b8" stroke-width="2" fill="none" opacity="0.3"/>
+                            
+                            <!-- Threat indicators -->
+                            {% for location in threat_locations %}
+                            {% set x = (loop.index0 * 120 + 100) % 800 + 100 %}
+                            {% set y = (loop.index0 * 80 + 150) % 200 + 150 %}
+                            <g class="threat-indicator" data-country="{{ location.country }}">
+                                <circle cx="{{ x }}" cy="{{ y }}" r="8" 
+                                        fill="{% if location.total_threats > 50 %}#dc2626{% elif location.total_threats > 20 %}#d97706{% else %}#059669{% endif %}" 
+                                        opacity="0.8">
+                                    <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                                <circle cx="{{ x }}" cy="{{ y }}" r="16" 
+                                        fill="{% if location.total_threats > 50 %}#dc2626{% elif location.total_threats > 20 %}#d97706{% else %}#059669{% endif %}" 
+                                        opacity="0.3">
+                                    <animate attributeName="r" values="16;24;16" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                                <text x="{{ x }}" y="{{ y + 30 }}" text-anchor="middle" class="threat-label" 
+                                      style="font-size: 12px; fill: #1e293b; font-weight: bold;">
+                                    {{ location.country }}
+                                </text>
+                            </g>
+                            {% endfor %}
+                        </svg>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="position-absolute bottom-0 start-0 m-3">
+                        <div class="bg-white rounded p-3 shadow-sm">
+                            <h6 class="mb-2">Threat Level</h6>
+                            <div class="d-flex flex-column gap-1">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle me-2" style="width: 12px; height: 12px; background-color: #dc2626;"></div>
+                                    <small>High (50+ threats)</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle me-2" style="width: 12px; height: 12px; background-color: #d97706;"></div>
+                                    <small>Medium (20-49 threats)</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle me-2" style="width: 12px; height: 12px; background-color: #059669;"></div>
+                                    <small>Low (1-19 threats)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Threat Analysis -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul me-2"></i>
+                    Geographic Threat Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover data-table">
+                        <thead>
+                            <tr>
+                                <th>Country</th>
+                                <th>Total Threats</th>
+                                <th>Blocked</th>
+                                <th>Unique IPs</th>
+                                <th>Top Threat Type</th>
+                                <th>Risk Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for location in threat_locations %}
+                            <tr>
+                                <td>
+                                    <i class="bi bi-geo-alt text-primary me-2"></i>
+                                    <strong>{{ location.country }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if location.total_threats > 50 %}danger{% elif location.total_threats > 20 %}warning{% else %}info{% endif %} rounded-pill">
+                                        {{ location.total_threats }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-success fw-bold">{{ location.blocked_threats }}</span>
+                                    <small class="text-muted">
+                                        ({{ "%.1f"|format((location.blocked_threats / location.total_threats * 100) if location.total_threats > 0 else 0) }}%)
+                                    </small>
+                                </td>
+                                <td>{{ location.unique_ips }}</td>
+                                <td>
+                                    {% if location.threat_types %}
+                                    {% set top_threat = location.threat_types|dictsort(by='value', reverse=true)|first %}
+                                    <span class="badge bg-secondary">{{ top_threat[0].replace('_', ' ').title() }}</span>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if location.total_threats > 50 %}
+                                    <span class="badge bg-danger">HIGH</span>
+                                    {% elif location.total_threats > 20 %}
+                                    <span class="badge bg-warning">MEDIUM</span>
+                                    {% else %}
+                                    <span class="badge bg-success">LOW</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Top Attacking IPs
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if top_attacking_ips %}
+                <div class="list-group list-group-flush">
+                    {% for ip_info in top_attacking_ips[:8] %}
+                    <div class="list-group-item px-0 py-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">
+                                    <code>{{ ip_info.ip }}</code>
+                                </h6>
+                                <p class="mb-1 text-muted small">
+                                    <i class="bi bi-geo-alt me-1"></i>{{ ip_info.country }}
+                                </p>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for threat_type in ip_info.threat_types[:2] %}
+                                    <span class="badge bg-light text-dark small">{{ threat_type.replace('_', ' ').title() }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-danger rounded-pill">{{ ip_info.attack_count }}</span>
+                                <br>
+                                <small class="text-success">{{ ip_info.blocked_count }} blocked</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-shield-check text-success" style="font-size: 3rem;"></i>
+                    <h6 class="mt-3 text-muted">No Active Threats</h6>
+                    <p class="text-muted">All systems secure</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Threat Timeline and Patterns -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Threat Activity Timeline
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="threatTimelineChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Threat timeline chart
+const timelineCtx = document.getElementById('threatTimelineChart').getContext('2d');
+const threatTimelineChart = new Chart(timelineCtx, {
+    type: 'bar',
+    data: {
+        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+        datasets: [{
+            label: 'Threats Detected',
+            data: [12, 8, 25, 45, 32, 18],
+            backgroundColor: 'rgba(220, 38, 38, 0.8)',
+            borderColor: '#dc2626',
+            borderWidth: 1
+        }, {
+            label: 'Threats Blocked',
+            data: [10, 7, 22, 40, 28, 15],
+            backgroundColor: 'rgba(5, 150, 105, 0.8)',
+            borderColor: '#059669',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    }
+});
+
+// Interactive threat indicators
+document.querySelectorAll('.threat-indicator').forEach(indicator => {
+    indicator.addEventListener('mouseenter', function() {
+        const country = this.dataset.country;
+        // Show tooltip or highlight effect
+        this.style.transform = 'scale(1.2)';
+    });
+    
+    indicator.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+    });
+});
+
+function refreshThreatData() {
+    // Simulate data refresh
+    location.reload();
+}
+</script>
+{% endblock %}

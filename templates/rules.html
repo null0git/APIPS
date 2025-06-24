@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Security Rules - Advanced IPS System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-shield-lock me-2"></i>
+        Security Rules Management
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('create_rule') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>
+                Create Rule
+            </a>
+            <button type="button" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-download me-1"></i>
+                Export Rules
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Rule Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card success">
+            <div class="card-body text-center">
+                <h3 class="text-success">{{ stats.active }}</h3>
+                <p class="mb-0">Active Rules</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <h3 class="text-primary">{{ stats.total }}</h3>
+                <p class="mb-0">Total Rules</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card danger">
+            <div class="card-body text-center">
+                <h3 class="text-danger">{{ stats.critical }}</h3>
+                <p class="mb-0">Critical Rules</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning">{{ stats.inactive }}</h3>
+                <p class="mb-0">Inactive Rules</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rules Table -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="bi bi-list-ul me-2"></i>
+            Security Rules ({{ stats.total }} total)
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rule in rules %}
+                    <tr>
+                        <td>
+                            <form method="POST" action="{{ url_for('toggle_rule', rule_id=rule.id) }}" class="d-inline">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" 
+                                           {% if rule.enabled %}checked{% endif %}
+                                           onchange="this.form.submit()">
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <strong>{{ rule.name }}</strong><br>
+                            <small class="text-muted">ID: {{ rule.id }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if rule.type == 'sql_injection' %}danger{% elif rule.type == 'xss' %}warning{% elif rule.type == 'malware' %}dark{% else %}secondary{% endif %}">
+                                {{ rule.type.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if rule.severity == 'critical' %}danger{% elif rule.severity == 'high' %}warning{% elif rule.severity == 'medium' %}info{% else %}secondary{% endif %}">
+                                {{ rule.severity.upper() }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark">
+                                <i class="bi bi-{% if rule.action == 'block' %}shield-x{% elif rule.action == 'alert' %}exclamation-triangle{% elif rule.action == 'monitor' %}eye{% else %}shield{% endif %} me-1"></i>
+                                {{ rule.action.upper() }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 300px;" title="{{ rule.description }}">
+                                {{ rule.description }}
+                            </div>
+                            <small class="text-muted">Pattern: <code>{{ rule.pattern[:50] }}{% if rule.pattern|length > 50 %}...{% endif %}</code></small>
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                {{ rule.created.split('T')[0] if 'T' in rule.created else rule.created }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ruleModal{{ rule.id }}" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                {% if current_user.role == 'admin' %}
+                                <button class="btn btn-outline-secondary" title="Edit Rule">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" title="Delete Rule" onclick="deleteRule('{{ rule.id }}', '{{ rule.name }}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Rule Details Modal -->
+                    <div class="modal fade" id="ruleModal{{ rule.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">{{ rule.name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Rule Information</h6>
+                                            <table class="table table-sm">
+                                                <tr>
+                                                    <td><strong>ID:</strong></td>
+                                                    <td>{{ rule.id }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Type:</strong></td>
+                                                    <td>{{ rule.type.replace('_', ' ').title() }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Severity:</strong></td>
+                                                    <td>
+                                                        <span class="badge bg-{% if rule.severity == 'critical' %}danger{% elif rule.severity == 'high' %}warning{% elif rule.severity == 'medium' %}info{% else %}secondary{% endif %}">
+                                                            {{ rule.severity.upper() }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Action:</strong></td>
+                                                    <td>{{ rule.action.title() }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Status:</strong></td>
+                                                    <td>
+                                                        <span class="badge bg-{% if rule.enabled %}success{% else %}secondary{% endif %}">
+                                                            {% if rule.enabled %}Enabled{% else %}Disabled{% endif %}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Description</h6>
+                                            <p>{{ rule.description }}</p>
+                                            
+                                            <h6>Detection Pattern</h6>
+                                            <pre class="bg-light p-2 rounded"><code>{{ rule.pattern }}</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    {% if current_user.role == 'admin' %}
+                                    <button type="button" class="btn btn-primary">Edit Rule</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deleteRule(ruleId, ruleName) {
+    if (confirm(`Are you sure you want to delete the rule "${ruleName}"?`)) {
+        // In a real application, this would make an AJAX request
+        alert('Rule deletion functionality would be implemented here.');
+    }
+}
+</script>
+{% endblock %}

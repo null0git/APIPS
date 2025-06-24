@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Create Rule - Advanced IPS System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-plus-lg me-2"></i>
+        Create Security Rule
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('rules') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Rules
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Rule Configuration</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Rule Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                                <div class="form-text">Enter a descriptive name for this rule</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Rule Type *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select rule type...</option>
+                                    <option value="sql_injection">SQL Injection</option>
+                                    <option value="xss">Cross-Site Scripting</option>
+                                    <option value="command_injection">Command Injection</option>
+                                    <option value="malware">Malware Detection</option>
+                                    <option value="reconnaissance">Reconnaissance</option>
+                                    <option value="brute_force">Brute Force</option>
+                                    <option value="ddos">DDoS Attack</option>
+                                    <option value="custom">Custom Rule</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="severity" class="form-label">Severity Level *</label>
+                                <select class="form-select" id="severity" name="severity" required>
+                                    <option value="">Select severity...</option>
+                                    <option value="critical">Critical</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="action" class="form-label">Action *</label>
+                                <select class="form-select" id="action" name="action" required>
+                                    <option value="">Select action...</option>
+                                    <option value="block">Block</option>
+                                    <option value="alert">Alert Only</option>
+                                    <option value="monitor">Monitor</option>
+                                    <option value="quarantine">Quarantine</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description *</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        <div class="form-text">Describe what this rule detects and its purpose</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="pattern" class="form-label">Detection Pattern *</label>
+                        <textarea class="form-control" id="pattern" name="pattern" rows="4" required 
+                                  placeholder="Enter regular expression pattern..."></textarea>
+                        <div class="form-text">Regular expression pattern to match against network traffic</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" onclick="testPattern()">
+                            <i class="bi bi-play-circle me-1"></i>
+                            Test Pattern
+                        </button>
+                        <div>
+                            <button type="button" class="btn btn-secondary me-2" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                Reset
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>
+                                Create Rule
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Rule Guidelines
+                </h6>
+            </div>
+            <div class="card-body">
+                <h6>Pattern Examples:</h6>
+                <div class="mb-3">
+                    <strong>SQL Injection:</strong>
+                    <pre class="bg-light p-2 rounded small"><code>(?i)(union\s+select|union\s+all\s+select)</code></pre>
+                </div>
+                <div class="mb-3">
+                    <strong>XSS:</strong>
+                    <pre class="bg-light p-2 rounded small"><code>(?i)(&lt;script|javascript:|onload=)</code></pre>
+                </div>
+                <div class="mb-3">
+                    <strong>Command Injection:</strong>
+                    <pre class="bg-light p-2 rounded small"><code>(?i)(;|\||&amp;|`|\$\()</code></pre>
+                </div>
+                
+                <h6>Severity Guidelines:</h6>
+                <ul class="small">
+                    <li><strong>Critical:</strong> Immediate threat, automatic blocking</li>
+                    <li><strong>High:</strong> Serious threat, requires attention</li>
+                    <li><strong>Medium:</strong> Potential threat, monitoring</li>
+                    <li><strong>Low:</strong> Informational, logging only</li>
+                </ul>
+                
+                <h6>Action Types:</h6>
+                <ul class="small">
+                    <li><strong>Block:</strong> Immediately block the connection</li>
+                    <li><strong>Alert:</strong> Generate alert but allow traffic</li>
+                    <li><strong>Monitor:</strong> Log activity for analysis</li>
+                    <li><strong>Quarantine:</strong> Isolate suspicious content</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Pattern Tester
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="testInput" class="form-label">Test Input:</label>
+                    <textarea class="form-control" id="testInput" rows="3" 
+                              placeholder="Enter text to test against your pattern..."></textarea>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm w-100" onclick="testPattern()">
+                    <i class="bi bi-play-circle me-1"></i>
+                    Test Pattern
+                </button>
+                <div id="testResult" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function testPattern() {
+    const pattern = document.getElementById('pattern').value;
+    const testInput = document.getElementById('testInput').value;
+    const resultDiv = document.getElementById('testResult');
+    
+    if (!pattern || !testInput) {
+        resultDiv.innerHTML = '<div class="alert alert-warning alert-sm">Please enter both pattern and test input.</div>';
+        return;
+    }
+    
+    try {
+        const regex = new RegExp(pattern, 'i');
+        const match = regex.test(testInput);
+        
+        if (match) {
+            resultDiv.innerHTML = '<div class="alert alert-success alert-sm"><i class="bi bi-check-circle me-1"></i>Pattern matches!</div>';
+        } else {
+            resultDiv.innerHTML = '<div class="alert alert-info alert-sm"><i class="bi bi-info-circle me-1"></i>No match found.</div>';
+        }
+    } catch (error) {
+        resultDiv.innerHTML = '<div class="alert alert-danger alert-sm"><i class="bi bi-exclamation-triangle me-1"></i>Invalid regex pattern: ' + error.message + '</div>';
+    }
+}
+
+function resetForm() {
+    if (confirm('Are you sure you want to reset the form?')) {
+        document.querySelector('form').reset();
+        document.getElementById('testResult').innerHTML = '';
+    }
+}
+
+// Auto-populate description based on rule type
+document.getElementById('category').addEventListener('change', function() {
+    const descriptions = {
+        'sql_injection': 'Detects SQL injection attempts in web requests',
+        'xss': 'Identifies cross-site scripting attack patterns',
+        'command_injection': 'Detects command injection attempts',
+        'malware': 'Scans for known malware signatures',
+        'reconnaissance': 'Identifies reconnaissance and scanning activities',
+        'brute_force': 'Detects brute force login attempts',
+        'ddos': 'Identifies distributed denial of service attacks',
+        'custom': 'Custom security rule'
+    };
+    
+    const descField = document.getElementById('description');
+    if (descField.value === '' && descriptions[this.value]) {
+        descField.value = descriptions[this.value];
+    }
+});
+</script>
+{% endblock %}

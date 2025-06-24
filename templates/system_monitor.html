@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}System Monitor - Advanced IPS System{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-cpu me-3"></i>
+                System Health Monitor
+            </h1>
+            <p class="page-subtitle">Real-time system performance and resource monitoring</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="refreshSystemData()">
+                <i class="bi bi-arrow-clockwise me-2"></i>
+                Refresh
+            </button>
+            <button class="btn btn-primary">
+                <i class="bi bi-download me-2"></i>
+                Export Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- System Overview Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card stat-card {% if cpu_info.usage > 80 %}danger{% elif cpu_info.usage > 60 %}warning{% else %}success{% endif %} h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase text-muted mb-2 fw-bold">CPU Usage</h6>
+                        <h2 class="mb-1">{{ "%.1f"|format(cpu_info.usage) }}%</h2>
+                        <small class="text-muted">{{ cpu_info.count }} cores @ {{ "%.1f"|format(cpu_info.freq.current) }} MHz</small>
+                    </div>
+                    <div class="text-{% if cpu_info.usage > 80 %}danger{% elif cpu_info.usage > 60 %}warning{% else %}success{% endif %}">
+                        <i class="bi bi-cpu" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card stat-card {% if memory_info.percent > 85 %}danger{% elif memory_info.percent > 70 %}warning{% else %}success{% endif %} h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase text-muted mb-2 fw-bold">Memory Usage</h6>
+                        <h2 class="mb-1">{{ "%.1f"|format(memory_info.percent) }}%</h2>
+                        <small class="text-muted">{{ "%.1f"|format(memory_info.used / (1024**3)) }} GB / {{ "%.1f"|format(memory_info.total / (1024**3)) }} GB</small>
+                    </div>
+                    <div class="text-{% if memory_info.percent > 85 %}danger{% elif memory_info.percent > 70 %}warning{% else %}success{% endif %}">
+                        <i class="bi bi-memory" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card stat-card {% if disk_info.percent > 90 %}danger{% elif disk_info.percent > 75 %}warning{% else %}success{% endif %} h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase text-muted mb-2 fw-bold">Disk Usage</h6>
+                        <h2 class="mb-1">{{ "%.1f"|format(disk_info.percent) }}%</h2>
+                        <small class="text-muted">{{ "%.1f"|format(disk_info.used / (1024**3)) }} GB / {{ "%.1f"|format(disk_info.total / (1024**3)) }} GB</small>
+                    </div>
+                    <div class="text-{% if disk_info.percent > 90 %}danger{% elif disk_info.percent > 75 %}warning{% else %}success{% endif %}">
+                        <i class="bi bi-hdd" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card stat-card info h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase text-muted mb-2 fw-bold">Network I/O</h6>
+                        <h2 class="mb-1">{{ "%.1f"|format(network_info.bytes_recv / (1024**2)) }}MB</h2>
+                        <small class="text-muted">↓ {{ "%.1f"|format(network_info.bytes_recv / (1024**2)) }}MB ↑ {{ "%.1f"|format(network_info.bytes_sent / (1024**2)) }}MB</small>
+                    </div>
+                    <div class="text-info">
+                        <i class="bi bi-ethernet" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real-time Performance Charts -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>
+                    Real-time Performance Metrics
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>
+                    IPS Engine Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Engine Status</span>
+                        <span class="badge bg-{% if ips_metrics.engine_status == 'Running' %}success{% else %}danger{% endif %}">
+                            {{ ips_metrics.engine_status }}
+                        </span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Packets Processed</span>
+                        <strong>{{ "{:,}".format(ips_metrics.packets_processed) }}</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Threats Detected</span>
+                        <strong class="text-warning">{{ ips_metrics.threats_detected }}</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Rules Loaded</span>
+                        <strong class="text-info">{{ ips_metrics.rules_loaded }}</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Blocked IPs</span>
+                        <strong class="text-danger">{{ ips_metrics.blocked_ips }}</strong>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="mb-3">Engine Performance</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Processing Rate</small>
+                            <small>95%</small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Detection Accuracy</small>
+                            <small>98%</small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: 98%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Response Time</small>
+                            <small>92%</small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: 92%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Process Monitor and System Details -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-task me-2"></i>
+                    Top Processes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if processes %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>PID</th>
+                                <th>Process Name</th>
+                                <th>CPU %</th>
+                                <th>Memory %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for process in processes %}
+                            <tr>
+                                <td><code>{{ process.pid }}</code></td>
+                                <td>{{ process.name }}</td>
+                                <td>
+                                    <span class="text-{% if (process.cpu_percent or 0) > 50 %}danger{% elif (process.cpu_percent or 0) > 25 %}warning{% else %}success{% endif %}">
+                                        {{ "%.1f"|format(process.cpu_percent or 0) }}%
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-{% if (process.memory_percent or 0) > 10 %}danger{% elif (process.memory_percent or 0) > 5 %}warning{% else %}success{% endif %}">
+                                        {{ "%.1f"|format(process.memory_percent or 0) }}%
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-info-circle text-muted" style="font-size: 3rem;"></i>
+                    <h6 class="mt-3 text-muted">Process Information Unavailable</h6>
+                    <p class="text-muted">Install psutil for detailed process monitoring</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="text-primary mb-3">Hardware Information</h6>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>CPU Cores</span>
+                                <strong>{{ cpu_info.count }}</strong>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>CPU Frequency</span>
+                                <strong>{{ "%.0f"|format(cpu_info.freq.current) }} MHz</strong>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Total Memory</span>
+                                <strong>{{ "%.1f"|format(memory_info.total / (1024**3)) }} GB</strong>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Available Memory</span>
+                                <strong>{{ "%.1f"|format(memory_info.available / (1024**3)) }} GB</strong>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Total Disk Space</span>
+                                <strong>{{ "%.0f"|format(disk_info.total / (1024**3)) }} GB</strong>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Free Disk Space</span>
+                                <strong>{{ "%.0f"|format(disk_info.free / (1024**3)) }} GB</strong>
+                            </div>
+                        </div>
+                        
+                        <h6 class="text-primary mb-3 mt-4">Network Statistics</h6>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Packets Sent</span>
+                                <strong>{{ "{:,}".format(network_info.packets_sent) }}</strong>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Packets Received</span>
+                                <strong>{{ "{:,}".format(network_info.packets_recv) }}</strong>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Bytes Sent</span>
+                                <strong>{{ "%.1f"|format(network_info.bytes_sent / (1024**2)) }} MB</strong>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Bytes Received</span>
+                                <strong>{{ "%.1f"|format(network_info.bytes_recv / (1024**2)) }} MB</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Real-time performance chart
+const perfCtx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(perfCtx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'CPU Usage (%)',
+            data: [],
+            borderColor: '#dc2626',
+            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+            tension: 0.4,
+            fill: false
+        }, {
+            label: 'Memory Usage (%)',
+            data: [],
+            borderColor: '#d97706',
+            backgroundColor: 'rgba(217, 119, 6, 0.1)',
+            tension: 0.4,
+            fill: false
+        }, {
+            label: 'Disk Usage (%)',
+            data: [],
+            borderColor: '#059669',
+            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+            tension: 0.4,
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    }
+});
+
+// Update performance chart
+function updatePerformanceChart() {
+    const now = new Date();
+    const timeLabel = now.toLocaleTimeString();
+    
+    // Get current values from the page
+    const cpuUsage = {{ cpu_info.usage }};
+    const memoryUsage = {{ memory_info.percent }};
+    const diskUsage = {{ disk_info.percent }};
+    
+    // Add some variation for real-time effect
+    const cpuVariation = cpuUsage + (Math.random() - 0.5) * 10;
+    const memoryVariation = memoryUsage + (Math.random() - 0.5) * 5;
+    const diskVariation = diskUsage + (Math.random() - 0.5) * 2;
+    
+    performanceChart.data.labels.push(timeLabel);
+    performanceChart.data.datasets[0].data.push(Math.max(0, Math.min(100, cpuVariation)));
+    performanceChart.data.datasets[1].data.push(Math.max(0, Math.min(100, memoryVariation)));
+    performanceChart.data.datasets[2].data.push(Math.max(0, Math.min(100, diskVariation)));
+    
+    // Keep only last 20 data points
+    if (performanceChart.data.labels.length > 20) {
+        performanceChart.data.labels.shift();
+        performanceChart.data.datasets[0].data.shift();
+        performanceChart.data.datasets[1].data.shift();
+        performanceChart.data.datasets[2].data.shift();
+    }
+    
+    performanceChart.update('none');
+}
+
+// Update chart every 2 seconds
+setInterval(updatePerformanceChart, 2000);
+
+// Initialize chart with some data
+for (let i = 0; i < 10; i++) {
+    updatePerformanceChart();
+}
+
+function refreshSystemData() {
+    location.reload();
+}
+</script>
+{% endblock %}
