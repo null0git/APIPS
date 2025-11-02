@@ -535,7 +535,7 @@ For more information, visit our [website](https://your-org.com/advanced-ips) or 
 
 Now let's enhance the IPS engine with the new monitoring capabilities:
 
-```typescriptreact file="ips_engine.py"
+\`\`\`typescriptreact file="ips_engine.py"
 [v0-no-op-code-block-prefix]#!/usr/bin/env python3
 """
 Advanced Intrusion Prevention System (IPS) Engine
